@@ -1,17 +1,41 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-
-enum AccentTheme { blue, amber }
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum GlassMode { dark, tinted }
 
 class AppState extends ChangeNotifier {
-  AppState();
+  static AppState? _instance;
+  static AppState? get instance => _instance;
 
-  AccentTheme _accentTheme = AccentTheme.blue;
+  SharedPreferences? _prefs;
+
+  AppState() {
+    _instance = this;
+    _initPrefs();
+  }
+
+  Future<void> _initPrefs() async {
+    _prefs = await SharedPreferences.getInstance();
+    
+    final themeIndex = _prefs?.getInt('themeMode');
+    if (themeIndex != null && themeIndex >= 0 && themeIndex < ThemeMode.values.length) {
+      _themeMode = ThemeMode.values[themeIndex];
+    }
+    
+    _hasCompletedOnboarding = _prefs?.getBool('onboardingComplete') ?? false;
+    _appLanguage = _prefs?.getString('appLanguage') ?? 'English';
+    _contentLanguage = _prefs?.getString('contentLanguage') ?? 'English';
+    notifyListeners();
+  }
+
   GlassMode _glassMode = GlassMode.tinted;
   bool _hasCompletedOnboarding = false;
+  String _selectedLanguage = 'English';
+  String _appLanguage = 'English';
+  String _contentLanguage = 'English';
+  ThemeMode _themeMode = ThemeMode.system;
   bool _notificationsEnabled = true;
   bool _offlineReadingEnabled = false;
   final Set<String> _bookmarkedIds = {'art-1', 'art-3'};
@@ -21,9 +45,13 @@ class AppState extends ChangeNotifier {
     'Virtual Cinema',
   ];
 
-  AccentTheme get accentTheme => _accentTheme;
   GlassMode get glassMode => _glassMode;
   bool get hasCompletedOnboarding => _hasCompletedOnboarding;
+  String get selectedLanguage => _selectedLanguage;
+  String get appLanguage => _appLanguage;
+  String get contentLanguage => _contentLanguage;
+  ThemeMode get themeMode => _themeMode;
+  bool get isDarkMode => _themeMode == ThemeMode.dark;
   bool get notificationsEnabled => _notificationsEnabled;
   bool get offlineReadingEnabled => _offlineReadingEnabled;
   bool get isTintedMode => _glassMode == GlassMode.tinted;
@@ -32,10 +60,7 @@ class AppState extends ChangeNotifier {
   UnmodifiableListView<String> get recentSearches =>
       UnmodifiableListView<String>(_recentSearches);
 
-  Color get accentColor => switch (_accentTheme) {
-    AccentTheme.blue => const Color(0xFF5AB2FF),
-    AccentTheme.amber => const Color(0xFFFFB347),
-  };
+  Color get accentColor => const Color(0xFF5AB2FF);
 
   double get glassOpacity => switch (_glassMode) {
     GlassMode.dark => 0.14,
@@ -48,14 +73,6 @@ class AppState extends ChangeNotifier {
   };
 
   double get blurSigma => 26.0;
-
-  void setAccentTheme(AccentTheme value) {
-    if (_accentTheme == value) {
-      return;
-    }
-    _accentTheme = value;
-    notifyListeners();
-  }
 
   void setGlassMode(GlassMode value) {
     if (_glassMode == value) {
@@ -70,6 +87,46 @@ class AppState extends ChangeNotifier {
       return;
     }
     _hasCompletedOnboarding = true;
+    _prefs?.setBool('onboardingComplete', true);
+    notifyListeners();
+  }
+
+  void setAppLanguage(String value) {
+    if (_appLanguage == value) {
+      return;
+    }
+    _appLanguage = value;
+    _prefs?.setString('appLanguage', value);
+    notifyListeners();
+  }
+
+  void setContentLanguage(String value) {
+    if (_contentLanguage == value) {
+      return;
+    }
+    _contentLanguage = value;
+    _prefs?.setString('contentLanguage', value);
+    notifyListeners();
+  }
+
+  void setSelectedLanguage(String value) {
+    if (_selectedLanguage == value) {
+      return;
+    }
+    _selectedLanguage = value;
+    _appLanguage = value;
+    _contentLanguage = value;
+    _prefs?.setString('appLanguage', value);
+    _prefs?.setString('contentLanguage', value);
+    notifyListeners();
+  }
+
+  void setThemeMode(ThemeMode value) {
+    if (_themeMode == value) {
+      return;
+    }
+    _themeMode = value;
+    _prefs?.setInt('themeMode', value.index);
     notifyListeners();
   }
 
