@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:factshot/app/app_state.dart';
 import 'package:factshot/core/theme/liquid_glass_theme.dart';
 import 'package:factshot/core/utils/transition_helper.dart';
 import 'package:factshot/core/widgets/glass_message/glass_message.dart';
@@ -69,6 +70,25 @@ class _LoginScreenState extends State<LoginScreen>
       _isLoading = false;
     });
 
+    final state = AppScope.of(context);
+    state.setOnboardingComplete();
+    state.setLoggedIn(true);
+    if (provider == 'Guest Mode') {
+      state.setDisplayName('Guest');
+      state.setEmail('');
+    } else if (provider == 'Email/Password' || provider == 'Email/Password Registration') {
+      if (_isLogin) {
+        state.setDisplayName(_emailController.text.split('@').first);
+        state.setEmail(_emailController.text);
+      } else {
+        state.setDisplayName(_nameController.text);
+        state.setEmail(_emailController.text);
+      }
+    } else {
+      state.setDisplayName('$provider User');
+      state.setEmail('${provider.toLowerCase()}@factshot.app');
+    }
+
     GlassMessage.show(context, 'Signed in via $provider');
 
     Navigator.of(
@@ -78,8 +98,12 @@ class _LoginScreenState extends State<LoginScreen>
 
   void _onFormSubmit() {
     if (_isLogin) {
-      if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
-        GlassMessage.show(context, AppTranslations.translate(context, 'enter_credentials'));
+      if (_emailController.text.trim().isEmpty ||
+          _passwordController.text.trim().isEmpty) {
+        GlassMessage.show(
+          context,
+          AppTranslations.translate(context, 'enter_credentials'),
+        );
         return;
       }
       _submitLogin('Email/Password');
@@ -88,7 +112,10 @@ class _LoginScreenState extends State<LoginScreen>
           _mobileController.text.trim().isEmpty ||
           _emailController.text.trim().isEmpty ||
           _passwordController.text.trim().isEmpty) {
-        GlassMessage.show(context, AppTranslations.translate(context, 'filling_fields'));
+        GlassMessage.show(
+          context,
+          AppTranslations.translate(context, 'filling_fields'),
+        );
         return;
       }
       _submitLogin('Email/Password Registration');
@@ -155,7 +182,10 @@ class _LoginScreenState extends State<LoginScreen>
                                     // Name Field for registration
                                     GlassTextField(
                                       controller: _nameController,
-                                      hintText: AppTranslations.translate(context, 'name'),
+                                      hintText: AppTranslations.translate(
+                                        context,
+                                        'name',
+                                      ),
                                       prefixIcon: Icon(
                                         CupertinoIcons.person,
                                         size: 20,
@@ -167,7 +197,10 @@ class _LoginScreenState extends State<LoginScreen>
                                     // Mobile Field for registration
                                     GlassTextField(
                                       controller: _mobileController,
-                                      hintText: AppTranslations.translate(context, 'mobile'),
+                                      hintText: AppTranslations.translate(
+                                        context,
+                                        'mobile',
+                                      ),
                                       keyboardType: TextInputType.phone,
                                       prefixIcon: Icon(
                                         CupertinoIcons.phone,
@@ -181,7 +214,10 @@ class _LoginScreenState extends State<LoginScreen>
                                   // Email Field (Used in both login and register)
                                   GlassTextField(
                                     controller: _emailController,
-                                    hintText: AppTranslations.translate(context, 'email'),
+                                    hintText: AppTranslations.translate(
+                                      context,
+                                      'email',
+                                    ),
                                     keyboardType: TextInputType.emailAddress,
                                     prefixIcon: Icon(
                                       CupertinoIcons.mail,
@@ -194,7 +230,10 @@ class _LoginScreenState extends State<LoginScreen>
                                   // Password Field (Used in both login and register)
                                   GlassTextField(
                                     controller: _passwordController,
-                                    hintText: AppTranslations.translate(context, 'password'),
+                                    hintText: AppTranslations.translate(
+                                      context,
+                                      'password',
+                                    ),
                                     obscureText: _obscurePassword,
                                     prefixIcon: Icon(
                                       CupertinoIcons.lock,
@@ -224,8 +263,14 @@ class _LoginScreenState extends State<LoginScreen>
                                     height: 56,
                                     child: GlassButton(
                                       label: _isLogin
-                                          ? AppTranslations.translate(context, 'login')
-                                          : AppTranslations.translate(context, 'register'),
+                                          ? AppTranslations.translate(
+                                              context,
+                                              'login',
+                                            )
+                                          : AppTranslations.translate(
+                                              context,
+                                              'register',
+                                            ),
                                       isPrimary: true,
                                       expanded: true,
                                       onTap: _onFormSubmit,
@@ -245,14 +290,20 @@ class _LoginScreenState extends State<LoginScreen>
                                 children: [
                                   Expanded(
                                     child: Divider(
-                                      color: LiquidGlassTheme.outline.withValues(alpha: 0.5),
+                                      color: LiquidGlassTheme.outline
+                                          .withValues(alpha: 0.5),
                                       thickness: 1,
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
                                     child: Text(
-                                      AppTranslations.translate(context, 'or_continue_with'),
+                                      AppTranslations.translate(
+                                        context,
+                                        'or_continue_with',
+                                      ),
                                       style: LiquidGlassTheme.caption.copyWith(
                                         color: LiquidGlassTheme.foregroundSoft,
                                         fontWeight: FontWeight.w600,
@@ -261,7 +312,8 @@ class _LoginScreenState extends State<LoginScreen>
                                   ),
                                   Expanded(
                                     child: Divider(
-                                      color: LiquidGlassTheme.outline.withValues(alpha: 0.5),
+                                      color: LiquidGlassTheme.outline
+                                          .withValues(alpha: 0.5),
                                       thickness: 1,
                                     ),
                                   ),
@@ -282,14 +334,16 @@ class _LoginScreenState extends State<LoginScreen>
                                           children: [
                                             Expanded(
                                               child: GoogleLoginCard(
-                                                onTap: () => _submitLogin('Google'),
+                                                onTap: () =>
+                                                    _submitLogin('Google'),
                                                 disabled: _isLoading,
                                               ),
                                             ),
                                             const SizedBox(width: 16),
                                             Expanded(
                                               child: AppleLoginCard(
-                                                onTap: () => _submitLogin('Apple'),
+                                                onTap: () =>
+                                                    _submitLogin('Apple'),
                                                 disabled: _isLoading,
                                               ),
                                             ),
@@ -300,7 +354,8 @@ class _LoginScreenState extends State<LoginScreen>
                                           children: [
                                             Expanded(
                                               child: GuestLoginCard(
-                                                onTap: () => _submitLogin('Guest Mode'),
+                                                onTap: () =>
+                                                    _submitLogin('Guest Mode'),
                                                 disabled: _isLoading,
                                               ),
                                             ),
@@ -319,7 +374,8 @@ class _LoginScreenState extends State<LoginScreen>
                                         const SizedBox(width: 16),
                                         Expanded(
                                           child: GuestLoginCard(
-                                            onTap: () => _submitLogin('Guest Mode'),
+                                            onTap: () =>
+                                                _submitLogin('Guest Mode'),
                                             disabled: _isLoading,
                                           ),
                                         ),
@@ -334,7 +390,8 @@ class _LoginScreenState extends State<LoginScreen>
                               controller: _animController,
                               delayFraction: 0.45,
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   // Bottom Left Circular Back Button
@@ -374,7 +431,8 @@ class _LoginScreenState extends State<LoginScreen>
                                     child: Padding(
                                       padding: EdgeInsets.only(left: 16.0),
                                       child: PrivacyFooter(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
                                       ),
                                     ),
                                   ),

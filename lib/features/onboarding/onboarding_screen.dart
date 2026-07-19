@@ -251,9 +251,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               decoration: BoxDecoration(
                                 color: isActive
                                     ? LiquidGlassTheme.foreground
-                                    : LiquidGlassTheme.foregroundSoft.withValues(
-                                        alpha: 0.3,
-                                      ),
+                                    : LiquidGlassTheme.foregroundSoft
+                                          .withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(3),
                               ),
                             ),

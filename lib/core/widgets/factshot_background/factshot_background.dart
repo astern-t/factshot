@@ -13,9 +13,6 @@ class FactShotBackground extends StatelessWidget {
         ? const Color(0xFF000000) // Pure black for Apple/Premium dark mode
         : const Color(0xFFF2F2F7); // Apple standard light gray background
 
-    return Container(
-      color: backgroundColor,
-      child: child,
-    );
+    return Container(color: backgroundColor, child: child);
   }
 }

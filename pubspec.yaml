@@ -37,6 +37,10 @@ dependencies:
   google_fonts: ^8.1.0
   shared_preferences: ^2.5.5
   flutter_svg: ^2.3.0
+  video_player: ^2.11.1
+  flutter_tts: ^4.2.5
+  share_plus: ^13.2.1
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

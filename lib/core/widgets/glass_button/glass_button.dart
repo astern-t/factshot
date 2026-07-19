@@ -27,31 +27,23 @@ class GlassButton extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     // Flat, solid colors
-    final backgroundColor = isPrimary 
-        ? accent 
+    final backgroundColor = isPrimary
+        ? accent
         : (isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7));
-    
-    final textColor = isPrimary 
-        ? Colors.white 
+
+    final textColor = isPrimary
+        ? Colors.white
         : (isDark ? Colors.white : Colors.black);
 
     final child = Row(
       mainAxisSize: expanded ? MainAxisSize.max : MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (icon != null)
-          Icon(
-            icon,
-            size: 18,
-            color: textColor,
-          ),
-        if (icon != null)
-          const SizedBox(width: LiquidGlassTheme.space12),
+        if (icon != null) Icon(icon, size: 18, color: textColor),
+        if (icon != null) const SizedBox(width: LiquidGlassTheme.space12),
         Text(
           label,
-          style: LiquidGlassTheme.bodyStrong.copyWith(
-            color: textColor,
-          ),
+          style: LiquidGlassTheme.bodyStrong.copyWith(color: textColor),
         ),
       ],
     );

@@ -1,5 +1,5 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-
 import 'package:factshot/core/theme/liquid_glass_theme.dart';
 
 enum GlassLevel { subtle, regular, strong }
@@ -38,16 +38,27 @@ class GlassSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final defaultFillColor = isDark ? const Color(0xFF1C1C1E) : const Color(0xFFFFFFFF);
-    final fillColor = customFillColor ?? defaultFillColor;
-    
-    final effectiveBorderColor = borderColor ?? (isDark 
-        ? Colors.white.withValues(alpha: 0.1) 
-        : Colors.black.withValues(alpha: 0.05));
-        
-    final effectiveShadowColor = shadowColor ?? (isDark 
-        ? Colors.black.withValues(alpha: 0.2) 
-        : Colors.black.withValues(alpha: 0.04));
+    // Frosted colors with correct opacity to let background peek through with high readability
+    final defaultFillColor = isDark
+        ? const Color(0xC512141A) // Frosted deep charcoal
+        : const Color(0xCCF8FAFC); // Frosted soft slate white
+
+    final fillColor = customFillColor ??
+        (tintColor != null
+            ? tintColor!.withValues(alpha: isDark ? 0.15 : 0.25)
+            : defaultFillColor);
+
+    final effectiveBorderColor =
+        borderColor ??
+        (isDark
+            ? Colors.white.withValues(alpha: 0.12)
+            : Colors.black.withValues(alpha: 0.08));
+
+    final effectiveShadowColor =
+        shadowColor ??
+        (isDark
+            ? Colors.black.withValues(alpha: 0.25)
+            : Colors.black.withValues(alpha: 0.05));
 
     return Container(
       width: width,
@@ -55,26 +66,31 @@ class GlassSurface extends StatelessWidget {
       margin: margin,
       alignment: alignment,
       decoration: BoxDecoration(
-        color: fillColor,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(
-          color: effectiveBorderColor,
-          width: 1,
-        ),
-        boxShadow: level == GlassLevel.subtle ? null : [
-          BoxShadow(
-            color: effectiveShadowColor,
-            blurRadius: level == GlassLevel.strong ? 32 : 16,
-            spreadRadius: level == GlassLevel.strong ? 4 : 0,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        boxShadow: level == GlassLevel.subtle
+            ? null
+            : [
+                BoxShadow(
+                  color: effectiveShadowColor,
+                  blurRadius: level == GlassLevel.strong ? 32 : 16,
+                  spreadRadius: level == GlassLevel.strong ? 4 : 0,
+                  offset: const Offset(0, 8),
+                ),
+              ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
-        child: Padding(
-          padding: padding ?? EdgeInsets.zero,
-          child: child,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: fillColor,
+              borderRadius: BorderRadius.circular(radius),
+              border: Border.all(color: effectiveBorderColor, width: 1.0),
+            ),
+            padding: padding ?? EdgeInsets.zero,
+            child: child,
+          ),
         ),
       ),
     );

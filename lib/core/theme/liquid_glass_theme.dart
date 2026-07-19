@@ -9,7 +9,8 @@ class LiquidGlassTheme {
       if (appState.themeMode == ThemeMode.light) return false;
       if (appState.themeMode == ThemeMode.dark) return true;
     }
-    return WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark;
+    return WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+        Brightness.dark;
   }
 
   static Color get background =>
@@ -110,11 +111,21 @@ class LiquidGlassTheme {
   );
 
   static ThemeData theme(Color accentColor, bool isDark) {
-    final localBackground = isDark ? const Color(0xFF05070B) : const Color(0xFFF5F7FA);
-    final localBackgroundSecondary = isDark ? const Color(0xFF0B1018) : const Color(0xFFFFFFFF);
-    final localBackgroundTertiary = isDark ? const Color(0xFF101827) : const Color(0xFFE2E8F0);
-    final localForeground = isDark ? const Color(0xFFF7FAFF) : const Color(0xFF0F172A);
-    final localOutline = isDark ? const Color(0x26FFFFFF) : const Color(0x1F000000);
+    final localBackground = isDark
+        ? const Color(0xFF05070B)
+        : const Color(0xFFF5F7FA);
+    final localBackgroundSecondary = isDark
+        ? const Color(0xFF0B1018)
+        : const Color(0xFFFFFFFF);
+    final localBackgroundTertiary = isDark
+        ? const Color(0xFF101827)
+        : const Color(0xFFE2E8F0);
+    final localForeground = isDark
+        ? const Color(0xFFF7FAFF)
+        : const Color(0xFF0F172A);
+    final localOutline = isDark
+        ? const Color(0x26FFFFFF)
+        : const Color(0x1F000000);
 
     final colorScheme = isDark
         ? ColorScheme.dark(
@@ -155,7 +166,11 @@ class LiquidGlassTheme {
           side: BorderSide(color: localOutline),
         ),
       ),
-      dividerTheme: DividerThemeData(thickness: 1, color: localOutline, space: 1),
+      dividerTheme: DividerThemeData(
+        thickness: 1,
+        color: localOutline,
+        space: 1,
+      ),
     );
   }
 }

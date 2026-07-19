@@ -70,15 +70,21 @@ class _LanguageScreenState extends State<LanguageScreen>
     // Local titles based on temporary selection to give instant visual feedback
     final isHindiApp = _tempAppLang == 'Hindi';
     final titleText = isHindiApp ? 'भाषा का चयन करें' : 'Choose Language';
-    final subText = isHindiApp 
-        ? 'ऐप इंटरफ़ेस और समाचार सामग्री के लिए अपनी पसंदीदा भाषाएँ चुनें।' 
+    final subText = isHindiApp
+        ? 'ऐप इंटरफ़ेस और समाचार सामग्री के लिए अपनी पसंदीदा भाषाएँ चुनें।'
         : 'Select your preferred languages for app interface and news content.';
-    
-    final appLangHeader = isHindiApp ? '१. ऐप की भाषा' : '1. App Language';
-    final appLangSub = isHindiApp ? 'मेन्यू, बटन और सेटिंग्स के लिए' : 'For menus, buttons and settings';
 
-    final contentLangHeader = isHindiApp ? '२. समाचार की भाषा' : '2. Content Language';
-    final contentLangSub = isHindiApp ? 'पढ़ने वाले समाचार लेखों के लिए' : 'For news articles you read';
+    final appLangHeader = isHindiApp ? '१. ऐप की भाषा' : '1. App Language';
+    final appLangSub = isHindiApp
+        ? 'मेन्यू, बटन और सेटिंग्स के लिए'
+        : 'For menus, buttons and settings';
+
+    final contentLangHeader = isHindiApp
+        ? '२. समाचार की भाषा'
+        : '2. Content Language';
+    final contentLangSub = isHindiApp
+        ? 'पढ़ने वाले समाचार लेखों के लिए'
+        : 'For news articles you read';
 
     return Scaffold(
       body: FactShotBackground(
@@ -97,25 +103,34 @@ class _LanguageScreenState extends State<LanguageScreen>
                       sliver: SliverList(
                         delegate: SliverChildListDelegate([
                           const SizedBox(height: LiquidGlassTheme.space20),
-                          
+
                           // Animated Headers
                           FadeTransition(
                             opacity: Tween<double>(begin: 0, end: 1).animate(
                               CurvedAnimation(
                                 parent: _animController,
-                                curve: const Interval(0.0, 0.4, curve: Curves.easeOutCubic),
+                                curve: const Interval(
+                                  0.0,
+                                  0.4,
+                                  curve: Curves.easeOutCubic,
+                                ),
                               ),
                             ),
                             child: SlideTransition(
-                              position: Tween<Offset>(
-                                begin: const Offset(0, 0.2),
-                                end: Offset.zero,
-                              ).animate(
-                                CurvedAnimation(
-                                  parent: _animController,
-                                  curve: const Interval(0.0, 0.4, curve: Curves.easeOutCubic),
-                                ),
-                              ),
+                              position:
+                                  Tween<Offset>(
+                                    begin: const Offset(0, 0.2),
+                                    end: Offset.zero,
+                                  ).animate(
+                                    CurvedAnimation(
+                                      parent: _animController,
+                                      curve: const Interval(
+                                        0.0,
+                                        0.4,
+                                        curve: Curves.easeOutCubic,
+                                      ),
+                                    ),
+                                  ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -127,7 +142,9 @@ class _LanguageScreenState extends State<LanguageScreen>
                                       letterSpacing: -1.0,
                                     ),
                                   ),
-                                  const SizedBox(height: LiquidGlassTheme.space12),
+                                  const SizedBox(
+                                    height: LiquidGlassTheme.space12,
+                                  ),
                                   Text(
                                     subText,
                                     style: LiquidGlassTheme.body.copyWith(
@@ -183,8 +200,9 @@ class _LanguageScreenState extends State<LanguageScreen>
                             delayStart: 0.5,
                             isDark: isDark,
                             accent: accent,
+                            isContentLang: true,
                           ),
-                          
+
                           const SizedBox(height: LiquidGlassTheme.space40),
                         ]),
                       ),
@@ -203,19 +221,28 @@ class _LanguageScreenState extends State<LanguageScreen>
                   opacity: Tween<double>(begin: 0, end: 1).animate(
                     CurvedAnimation(
                       parent: _animController,
-                      curve: const Interval(0.7, 1.0, curve: Curves.easeOutCubic),
+                      curve: const Interval(
+                        0.7,
+                        1.0,
+                        curve: Curves.easeOutCubic,
+                      ),
                     ),
                   ),
                   child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, 0.4),
-                      end: Offset.zero,
-                    ).animate(
-                      CurvedAnimation(
-                        parent: _animController,
-                        curve: const Interval(0.7, 1.0, curve: Curves.easeOutCubic),
-                      ),
-                    ),
+                    position:
+                        Tween<Offset>(
+                          begin: const Offset(0, 0.4),
+                          end: Offset.zero,
+                        ).animate(
+                          CurvedAnimation(
+                            parent: _animController,
+                            curve: const Interval(
+                              0.7,
+                              1.0,
+                              curve: Curves.easeOutCubic,
+                            ),
+                          ),
+                        ),
                     child: SizedBox(
                       width: double.infinity,
                       height: 64,
@@ -245,19 +272,25 @@ class _LanguageScreenState extends State<LanguageScreen>
       opacity: Tween<double>(begin: 0, end: 1).animate(
         CurvedAnimation(
           parent: _animController,
-          curve: Interval(delayStart, delayStart + 0.3, curve: Curves.easeOutCubic),
+          curve: Interval(
+            delayStart,
+            delayStart + 0.3,
+            curve: Curves.easeOutCubic,
+          ),
         ),
       ),
       child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.1),
-          end: Offset.zero,
-        ).animate(
-          CurvedAnimation(
-            parent: _animController,
-            curve: Interval(delayStart, delayStart + 0.3, curve: Curves.easeOutCubic),
-          ),
-        ),
+        position: Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero)
+            .animate(
+              CurvedAnimation(
+                parent: _animController,
+                curve: Interval(
+                  delayStart,
+                  delayStart + 0.3,
+                  curve: Curves.easeOutCubic,
+                ),
+              ),
+            ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -289,29 +322,53 @@ class _LanguageScreenState extends State<LanguageScreen>
     required double delayStart,
     required bool isDark,
     required Color accent,
+    bool isContentLang = false,
   }) {
     final languages = [
-      _LangData(name: 'English', nativeName: 'English', flag: '🇺🇸', accentColor: const Color(0xFF5AB2FF)),
-      _LangData(name: 'Hindi', nativeName: 'हिन्दी', flag: '🇮🇳', accentColor: const Color(0xFFFF9933)),
+      _LangData(
+        name: 'English',
+        nativeName: 'English',
+        flag: '🇺🇸',
+        accentColor: const Color(0xFF5AB2FF),
+      ),
+      _LangData(
+        name: 'Hindi',
+        nativeName: 'हिन्दी',
+        flag: '🇮🇳',
+        accentColor: const Color(0xFFFF9933),
+      ),
+      if (isContentLang)
+        _LangData(
+          name: 'Both',
+          nativeName: 'दोनों',
+          flag: '🇺🇸🇮🇳',
+          accentColor: const Color(0xFF10B981),
+        ),
     ];
 
     return FadeTransition(
       opacity: Tween<double>(begin: 0, end: 1).animate(
         CurvedAnimation(
           parent: _animController,
-          curve: Interval(delayStart, delayStart + 0.3, curve: Curves.easeOutCubic),
+          curve: Interval(
+            delayStart,
+            delayStart + 0.3,
+            curve: Curves.easeOutCubic,
+          ),
         ),
       ),
       child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.15),
-          end: Offset.zero,
-        ).animate(
-          CurvedAnimation(
-            parent: _animController,
-            curve: Interval(delayStart, delayStart + 0.3, curve: Curves.easeOutCubic),
-          ),
-        ),
+        position: Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero)
+            .animate(
+              CurvedAnimation(
+                parent: _animController,
+                curve: Interval(
+                  delayStart,
+                  delayStart + 0.3,
+                  curve: Curves.easeOutCubic,
+                ),
+              ),
+            ),
         child: Row(
           children: List.generate(languages.length, (index) {
             final lang = languages[index];
@@ -366,7 +423,7 @@ class _LanguageScreenState extends State<LanguageScreen>
                               color: isSelected
                                   ? lang.accentColor.withValues(alpha: 0.15)
                                   : (isDark ? Colors.white : Colors.black)
-                                      .withValues(alpha: 0.05),
+                                        .withValues(alpha: 0.05),
                             ),
                             child: Center(
                               child: Text(

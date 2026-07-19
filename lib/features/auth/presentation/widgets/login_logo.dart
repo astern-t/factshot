@@ -48,10 +48,12 @@ class _LoginLogoState extends State<LoginLogo>
     final theme = Theme.of(context);
     final primaryAccent = theme.colorScheme.primary;
     final isDark = theme.brightness == Brightness.dark;
-    
-    final surfaceColor = isDark ? const Color(0xFF0D121F) : const Color(0xFFFFFFFF);
-    final borderColor = isDark 
-        ? Colors.white.withValues(alpha: 0.08) 
+
+    final surfaceColor = isDark
+        ? const Color(0xFF0D121F)
+        : const Color(0xFFFFFFFF);
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.08)
         : Colors.black.withValues(alpha: 0.05);
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
 
@@ -83,10 +85,7 @@ class _LoginLogoState extends State<LoginLogo>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: surfaceColor,
-                    border: Border.all(
-                      color: borderColor,
-                      width: 1.5,
-                    ),
+                    border: Border.all(color: borderColor, width: 1.5),
                     boxShadow: [
                       BoxShadow(
                         color: primaryAccent.withValues(
@@ -136,4 +135,3 @@ class _LoginLogoState extends State<LoginLogo>
     );
   }
 }
-

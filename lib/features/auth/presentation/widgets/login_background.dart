@@ -25,10 +25,12 @@ class LoginBackground extends StatelessWidget {
           ];
 
     final glow1Color = primaryAccent.withValues(alpha: isDark ? 0.14 : 0.10);
-    final glow2Color =
-        const Color(0xFF6366F1).withValues(alpha: isDark ? 0.08 : 0.05);
-    final glow3Color =
-        (isDark ? Colors.white : Colors.black).withValues(alpha: 0.02);
+    final glow2Color = const Color(
+      0xFF6366F1,
+    ).withValues(alpha: isDark ? 0.08 : 0.05);
+    final glow3Color = (isDark ? Colors.white : Colors.black).withValues(
+      alpha: 0.02,
+    );
 
     return Stack(
       children: [

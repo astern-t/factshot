@@ -100,20 +100,17 @@ class _MainNavigationState extends State<MainNavigation> {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 24),
               child: GlassSurface(
-                width: 280, // A bit wider to comfortably fit the 52px circle
-                height: 72,
+                width: 340,
+                height: 60,
                 radius: 36,
-                level: GlassLevel.strong,
-                // The image shows solid, highly contrasting backgrounds.
+                level: GlassLevel.subtle, // No shadow/elevation
                 customFillColor: isDark
-                    ? const Color(0xFF1C1C1E) // Apple dark gray
-                    : const Color(0xFFFFFFFF), // Pure white
+                    ? const Color(0xFF1C1C1E)
+                    : const Color(0xFFFFFFFF),
                 borderColor: isDark
-                    ? Colors.white.withValues(alpha: 0.1)
-                    : Colors.black.withValues(alpha: 0.04),
-                shadowColor: isDark
-                    ? Colors.black.withValues(alpha: 0.5)
-                    : Colors.black.withValues(alpha: 0.08),
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.black.withValues(alpha: 0.06),
+                shadowColor: Colors.transparent, // Zero elevation
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
                   vertical: 10,
@@ -123,7 +120,8 @@ class _MainNavigationState extends State<MainNavigation> {
                     // The Blue Circular Indicator perfectly contained inside
                     AnimatedAlign(
                       duration: const Duration(milliseconds: 500),
-                      curve: Curves.elasticOut,
+                      curve: Curves
+                          .easeInOutBack, // smoother, slightly curved slide
                       alignment: Alignment(-1 + (_currentTab * 1.0), 0),
                       child: FractionallySizedBox(
                         widthFactor: 1 / 3, // Since there are 3 tabs
@@ -155,7 +153,7 @@ class _MainNavigationState extends State<MainNavigation> {
                           },
                         ),
                         _NavItem(
-                          icon: CupertinoIcons.search,
+                          icon: CupertinoIcons.compass,
                           active: _currentTab == 1,
                           onTap: () {
                             if (_currentTab != 1) {

@@ -102,4 +102,3 @@ class WelcomeHeader extends StatelessWidget {
     );
   }
 }
-

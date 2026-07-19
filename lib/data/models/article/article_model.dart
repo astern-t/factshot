@@ -7,9 +7,11 @@ class NewsArticle {
   final String body;
   final String category;
   final String imageUrl;
+  final String? videoUrl;
   final String source;
   final String timestamp;
   final int readTimeMinutes;
+  final String sourceUrl;
 
   const NewsArticle({
     required this.id,
@@ -18,10 +20,14 @@ class NewsArticle {
     required this.body,
     required this.category,
     required this.imageUrl,
+    this.videoUrl,
     required this.source,
     required this.timestamp,
     required this.readTimeMinutes,
+    this.sourceUrl = 'https://news.google.com',
   });
+
+  bool get hasVideo => videoUrl != null && videoUrl!.isNotEmpty;
 }
 
 // Global list of mock news articles for the FactShot prototype.
@@ -36,9 +42,12 @@ final List<NewsArticle> mockArticles = [
         'Quantum computing has taken a massive step toward commercial viability. By achieving 99.9% gate fidelity using silicon spin-qubits, researchers have successfully cleared the error-rate hurdle that has stalled quantum progress for years.\n\nThe research, published in Nature, demonstrates that standard silicon wafers can be used to fabricate stable quantum dots. These dots house electron spins that act as qubits. Since they use existing CMOS manufacturing lines, scaling from tens of qubits to millions is suddenly a hardware engineering problem rather than a theoretical physics one.\n\nTech companies are already lining up to license the technology. The implications are profound, ranging from rapid drug discovery to breaking modern cryptographic standards. Quantum error correction requires thousands of physical qubits to create a single logical qubit, and silicon spin-qubits are currently the most compact option available.',
     imageUrl:
         'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=800',
+    videoUrl:
+        'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
     source: 'TechCrunch',
     timestamp: '12m ago',
     readTimeMinutes: 3,
+    sourceUrl: 'https://techcrunch.com',
   ),
   const NewsArticle(
     id: 'art-2',
@@ -53,6 +62,7 @@ final List<NewsArticle> mockArticles = [
     source: 'The Hindu',
     timestamp: '1h ago',
     readTimeMinutes: 4,
+    sourceUrl: 'https://www.thehindu.com',
   ),
   const NewsArticle(
     id: 'art-3',
@@ -68,6 +78,7 @@ final List<NewsArticle> mockArticles = [
     source: 'Bloomberg',
     timestamp: '3h ago',
     readTimeMinutes: 3,
+    sourceUrl: 'https://www.bloomberg.com',
   ),
   const NewsArticle(
     id: 'art-4',
@@ -83,6 +94,7 @@ final List<NewsArticle> mockArticles = [
     source: 'ESPN Sports',
     timestamp: '5h ago',
     readTimeMinutes: 3,
+    sourceUrl: 'https://www.espn.com',
   ),
   const NewsArticle(
     id: 'art-5',
@@ -94,9 +106,12 @@ final List<NewsArticle> mockArticles = [
         'The film industry has been shaken by the overwhelming success of a micro-budget indie film at the Golden Globe Awards. Winning five major categories, the project bypassed traditional studio distribution, launching directly to streaming platforms.\n\nFilmed entirely inside a custom virtual studio setup, the creators utilized artificial intelligence tools to render hyper-realistic alien landscapes on a budget of under \$2 million. Critics have lauded the storytelling for its depth, contrasting the visual grandeur with intimate, character-driven subplots.\n\nStudio executives are acknowledging this as a watershed moment. The democratizing effect of high-fidelity rendering software means independent filmmakers can now compete with major blockbusters on visual scales, shifting the industry focus back to original screenplays and innovative concepts.',
     imageUrl:
         'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=800',
+    videoUrl:
+        'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
     source: 'Variety',
     timestamp: '6h ago',
     readTimeMinutes: 4,
+    sourceUrl: 'https://variety.com',
   ),
   const NewsArticle(
     id: 'art-6',
@@ -111,6 +126,7 @@ final List<NewsArticle> mockArticles = [
     source: '9to5Mac',
     timestamp: '8h ago',
     readTimeMinutes: 2,
+    sourceUrl: 'https://9to5mac.com',
   ),
   const NewsArticle(
     id: 'art-7',
@@ -125,6 +141,7 @@ final List<NewsArticle> mockArticles = [
     source: 'Times of India',
     timestamp: '12h ago',
     readTimeMinutes: 3,
+    sourceUrl: 'https://timesofindia.indiatimes.com',
   ),
   const NewsArticle(
     id: 'art-8',
@@ -139,6 +156,7 @@ final List<NewsArticle> mockArticles = [
     source: 'Reuters',
     timestamp: '1d ago',
     readTimeMinutes: 3,
+    sourceUrl: 'https://www.reuters.com',
   ),
   const NewsArticle(
     id: 'art-9',
@@ -153,6 +171,7 @@ final List<NewsArticle> mockArticles = [
     source: 'NASA Spaceflight',
     timestamp: '1d ago',
     readTimeMinutes: 4,
+    sourceUrl: 'https://www.nasa.gov',
   ),
   const NewsArticle(
     id: 'art-10',
@@ -161,12 +180,12 @@ final List<NewsArticle> mockArticles = [
     summary:
         'Marine archaeologists have uncovered the ruins of a sprawling Bronze Age city submerged off the coast of Greece. The site, dating back to approximately 2500 BCE, features intact stone foundations, paved roadways, and hundreds of clay storage vessels. The discovery promises to reshape our understanding of early Mediterranean trade networks and maritime civilizations.',
     body:
-        'A team of international marine archaeologists has announced the discovery of a massive, submerged Bronze Age settlement in the Aegean Sea. Located off the coast of the Greek island of Hydra, the site spans over 12 acres at a depth of 3 to 10 meters.\n\nUsing side-scan sonar and underwater photogrammetry, the team mapped out stone foundations of buildings, fortified walls, and paved streets. They also retrieved hundreds of intact pottery shards, including large amphorae used for storing olive oil and wine, suggesting the city was a thriving commercial port.\n\nResearchers believe the city was flooded around 1500 BCE due to tectonic activity or rising sea levels. The discovery provides invaluable data on Bronze Age maritime commerce and engineering, offering a rare glimpse into a civilization that existed at the dawn of European history.',
+        'A team of international marine archaeologists has announced the discovery of a massive, submerged Bronze Age settlement in the Aegean Sea. Located off the coast of the Greek island of Hydra, the site spans over 12 acres at a depth of 3 to 10 meters.\n\nUsing side-scan sonar and underwater photogrammetry, the team mapped out stone foundations of buildings, fortified walls, and paved streets. They also retrieved hundreds of clay pottery shards, including large amphorae used for storing olive oil and wine, suggesting the city was a thriving commercial port.\n\nResearchers believe the city was flooded around 1500 BCE due to tectonic activity or rising sea levels. The discovery provides invaluable data on Bronze Age maritime commerce and engineering, offering a rare glimpse into a civilization that existed at the dawn of European history.',
     imageUrl:
         'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&q=80&w=800',
     source: 'Nat Geo',
     timestamp: '2d ago',
     readTimeMinutes: 5,
+    sourceUrl: 'https://www.nationalgeographic.com',
   ),
 ];
-

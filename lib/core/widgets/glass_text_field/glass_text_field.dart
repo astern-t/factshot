@@ -32,17 +32,22 @@ class GlassTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1C1C1E) : const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.black.withValues(alpha: 0.05),
           width: 1,
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: LiquidGlassTheme.space16, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: LiquidGlassTheme.space16,
+        vertical: 4,
+      ),
       child: TextField(
         controller: controller,
         onChanged: onChanged,

@@ -31,7 +31,8 @@ class AppTranslations {
       'save': 'Save',
       'continue': 'Continue',
       'choose_language': 'Choose Language',
-      'select_pref_lang': 'Select your languages. You can change this later in settings.',
+      'select_pref_lang':
+          'Select your languages. You can change this later in settings.',
       'read_more': 'Read full story',
       'no_articles': 'No articles in this category.',
       'personalize_feed': 'Personalize Feed',
@@ -54,8 +55,10 @@ class AppTranslations {
       'feedback': 'Send feedback',
       'feedback_success': 'Feedback captured! Thank you.',
       'material_mood': 'Material Mood',
-      'dark_explanation': 'Dark keeps the glass elements clearer with minimal accent color injection.',
-      'tinted_explanation': 'Tinted injects more primary blue accent and density across all glass surfaces.',
+      'dark_explanation':
+          'Dark keeps the glass elements clearer with minimal accent color injection.',
+      'tinted_explanation':
+          'Tinted injects more primary blue accent and density across all glass surfaces.',
       'push_notifications': 'Push notifications',
       'push_notifications_sub': 'Get curated alerts for the daily brief.',
       'offline_reading_sub': 'Keep saved stories cached locally.',
@@ -69,6 +72,9 @@ class AppTranslations {
       'cat_business': 'Business',
       'cat_sports': 'Sports',
       'cat_entertainment': 'Entertainment',
+      'listen': 'Listen',
+      'now_playing': 'Now Playing',
+      'narration_paused': 'Narration Paused',
     },
     'Hindi': {
       'app_title': 'फ़ैक्टशॉट',
@@ -98,7 +104,8 @@ class AppTranslations {
       'save': 'सहेजें',
       'continue': 'जारी रखें',
       'choose_language': 'भाषा चुनें',
-      'select_pref_lang': 'अपनी भाषाएं चुनें। आप इसे बाद में सेटिंग्स में बदल सकते हैं।',
+      'select_pref_lang':
+          'अपनी भाषाएं चुनें। आप इसे बाद में सेटिंग्स में बदल सकते हैं।',
       'read_more': 'पूरी कहानी पढ़ें',
       'no_articles': 'इस श्रेणी में कोई लेख नहीं है।',
       'personalize_feed': 'फ़ीड को वैयक्तिकृत करें',
@@ -121,11 +128,15 @@ class AppTranslations {
       'feedback': 'प्रतिक्रिया भेजें',
       'feedback_success': 'प्रतिक्रिया दर्ज की गई! धन्यवाद।',
       'material_mood': 'सामग्री का मूड',
-      'dark_explanation': 'डार्क न्यूनतम प्राथमिक रंग के साथ ग्लास तत्वों को अधिक पारदर्शी रखता है।',
-      'tinted_explanation': 'टिंटेड सभी ग्लास सतहों पर अधिक प्राथमिक नीला रंग जोड़ता है।',
+      'dark_explanation':
+          'डार्क न्यूनतम प्राथमिक रंग के साथ ग्लास तत्वों को अधिक पारदर्शी रखता है।',
+      'tinted_explanation':
+          'टिंटेड सभी ग्लास सतहों पर अधिक प्राथमिक नीला रंग जोड़ता है।',
       'push_notifications': 'पुश अधिसूचनाएं',
-      'push_notifications_sub': 'दैनिक संक्षिप्त जानकारी के लिए क्यूरेटेड अलर्ट प्राप्त करें।',
-      'offline_reading_sub': 'सहेजी गई कहानियों को स्थानीय रूप से कैश करके रखें।',
+      'push_notifications_sub':
+          'दैनिक संक्षिप्त जानकारी के लिए क्यूरेटेड अलर्ट प्राप्त करें।',
+      'offline_reading_sub':
+          'सहेजी गई कहानियों को स्थानीय रूप से कैश करके रखें।',
       'day_mode': 'डे मोड',
       'day_mode_sub': 'लाइट और डार्क थीम टॉगल करें।',
       'cat_all': 'सभी',
@@ -136,13 +147,17 @@ class AppTranslations {
       'cat_business': 'व्यापार',
       'cat_sports': 'खेल',
       'cat_entertainment': 'मनोरंजन',
-    }
+      'listen': 'सुनें',
+      'now_playing': 'अभी चल रहा है',
+      'narration_paused': 'वाचन रुका हुआ',
+    },
   };
 
   static String translate(BuildContext context, String key) {
     try {
       final language = AppScope.of(context).appLanguage;
-      return _localizedValues[language]?[key] ?? _localizedValues['English']![key]!;
+      return _localizedValues[language]?[key] ??
+          _localizedValues['English']![key]!;
     } catch (_) {
       return _localizedValues['English']![key]!;
     }
