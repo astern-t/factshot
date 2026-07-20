@@ -325,85 +325,111 @@ class _ThemeSelectorTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isHindi = state.appLanguage == 'Hindi';
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
-    return Padding(
-      padding: const EdgeInsets.all(LiquidGlassTheme.space12),
-      child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
+    final headerRow = Row(
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: iconColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(child: Icon(_icon, color: iconColor, size: 20)),
+        ),
+        const SizedBox(width: LiquidGlassTheme.space16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isHindi ? 'थीम' : 'Theme',
+                style: LiquidGlassTheme.bodyStrong.copyWith(
+                  color: LiquidGlassTheme.foreground,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                isHindi
+                    ? 'डिवाइस थीम के अनुसार स्वचालित'
+                    : 'Follows device theme automatically',
+                style: LiquidGlassTheme.caption.copyWith(
+                  color: LiquidGlassTheme.foregroundSoft,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    final control = SizedBox(
+      width: isMobile ? double.infinity : null,
+      child: CupertinoSlidingSegmentedControl<ThemeMode>(
+        groupValue: state.themeMode,
+        thumbColor: Theme.of(
+          context,
+        ).colorScheme.primary.withValues(alpha: 0.2),
+        children: {
+          ThemeMode.system: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: Icon(
+              CupertinoIcons.device_phone_portrait,
+              size: 16,
+              color: LiquidGlassTheme.foreground,
             ),
-            child: Center(child: Icon(_icon, color: iconColor, size: 20)),
           ),
-          const SizedBox(width: LiquidGlassTheme.space16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isHindi ? 'थीम' : 'Theme',
-                  style: LiquidGlassTheme.bodyStrong.copyWith(
-                    color: LiquidGlassTheme.foreground,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  isHindi
-                      ? 'डिवाइस थीम के अनुसार स्वचालित'
-                      : 'Follows device theme automatically',
-                  style: LiquidGlassTheme.caption.copyWith(
-                    color: LiquidGlassTheme.foregroundSoft,
-                  ),
-                ),
-              ],
+          ThemeMode.light: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: Icon(
+              CupertinoIcons.sun_max_fill,
+              size: 16,
+              color: LiquidGlassTheme.foreground,
             ),
           ),
-          // Segmented control for System / Light / Dark
-          CupertinoSlidingSegmentedControl<ThemeMode>(
-            groupValue: state.themeMode,
-            thumbColor: Theme.of(
-              context,
-            ).colorScheme.primary.withValues(alpha: 0.2),
-            children: {
-              ThemeMode.system: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Icon(
-                  CupertinoIcons.device_phone_portrait,
-                  size: 16,
-                  color: LiquidGlassTheme.foreground,
-                ),
-              ),
-              ThemeMode.light: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Icon(
-                  CupertinoIcons.sun_max_fill,
-                  size: 16,
-                  color: LiquidGlassTheme.foreground,
-                ),
-              ),
-              ThemeMode.dark: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Icon(
-                  CupertinoIcons.moon_fill,
-                  size: 16,
-                  color: LiquidGlassTheme.foreground,
-                ),
-              ),
-            },
-            onValueChanged: (mode) {
-              if (mode != null) {
-                HapticFeedback.selectionClick();
-                state.setThemeMode(mode);
-              }
-            },
+          ThemeMode.dark: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: Icon(
+              CupertinoIcons.moon_fill,
+              size: 16,
+              color: LiquidGlassTheme.foreground,
+            ),
           ),
-        ],
+        },
+        onValueChanged: (mode) {
+          if (mode != null) {
+            HapticFeedback.selectionClick();
+            state.setThemeMode(mode);
+          }
+        },
       ),
     );
+
+    if (isMobile) {
+      return Padding(
+        padding: const EdgeInsets.all(LiquidGlassTheme.space12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            headerRow,
+            const SizedBox(height: 12),
+            control,
+          ],
+        ),
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.all(LiquidGlassTheme.space12),
+        child: Row(
+          children: [
+            Expanded(child: headerRow),
+            const SizedBox(width: 16),
+            control,
+          ],
+        ),
+      );
+    }
   }
 }
 
@@ -935,93 +961,120 @@ class _FontSizeSelectorTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isHindi = state.appLanguage == 'Hindi';
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
-    return Padding(
-      padding: const EdgeInsets.all(LiquidGlassTheme.space12),
-      child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Icon(
-                CupertinoIcons.textformat_size,
-                color: iconColor,
-                size: 20,
-              ),
+    final headerRow = Row(
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: iconColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(
+            child: Icon(
+              CupertinoIcons.textformat_size,
+              color: iconColor,
+              size: 20,
             ),
           ),
-          const SizedBox(width: LiquidGlassTheme.space16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isHindi ? 'फ़ॉन्ट आकार' : 'Text Size',
-                  style: LiquidGlassTheme.bodyStrong.copyWith(
-                    color: LiquidGlassTheme.foreground,
-                  ),
+        ),
+        const SizedBox(width: LiquidGlassTheme.space16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isHindi ? 'फ़ॉन्ट आकार' : 'Text Size',
+                style: LiquidGlassTheme.bodyStrong.copyWith(
+                  color: LiquidGlassTheme.foreground,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  isHindi ? 'ऐप की मुख्य पाठ फ़ॉन्ट आकार' : 'Scale text sizes inside the application',
-                  style: LiquidGlassTheme.caption.copyWith(
-                    color: LiquidGlassTheme.foregroundSoft,
-                  ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                isHindi ? 'ऐप की मुख्य पाठ फ़ॉन्ट आकार' : 'Scale text sizes inside the application',
+                style: LiquidGlassTheme.caption.copyWith(
+                  color: LiquidGlassTheme.foregroundSoft,
                 ),
-              ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    final control = SizedBox(
+      width: isMobile ? double.infinity : null,
+      child: CupertinoSlidingSegmentedControl<double>(
+        groupValue: state.fontSizeScale,
+        thumbColor: Theme.of(
+          context,
+        ).colorScheme.primary.withValues(alpha: 0.2),
+        children: {
+          0.85: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: Text(
+              isHindi ? 'छोटा' : 'S',
+              style: LiquidGlassTheme.bodyStrong.copyWith(fontSize: 12),
             ),
           ),
-          CupertinoSlidingSegmentedControl<double>(
-            groupValue: state.fontSizeScale,
-            thumbColor: Theme.of(
-              context,
-            ).colorScheme.primary.withValues(alpha: 0.2),
-            children: {
-              0.85: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Text(
-                  isHindi ? 'छोटा' : 'S',
-                  style: LiquidGlassTheme.bodyStrong.copyWith(fontSize: 12),
-                ),
-              ),
-              1.0: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Text(
-                  isHindi ? 'मध्यम' : 'M',
-                  style: LiquidGlassTheme.bodyStrong.copyWith(fontSize: 14),
-                ),
-              ),
-              1.15: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Text(
-                  isHindi ? 'बड़ा' : 'L',
-                  style: LiquidGlassTheme.bodyStrong.copyWith(fontSize: 16),
-                ),
-              ),
-              1.3: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Text(
-                  isHindi ? 'विशाल' : 'XL',
-                  style: LiquidGlassTheme.bodyStrong.copyWith(fontSize: 18),
-                ),
-              ),
-            },
-            onValueChanged: (val) {
-              if (val != null) {
-                if (state.hapticsEnabled) {
-                  HapticFeedback.selectionClick();
-                }
-                state.setFontSizeScale(val);
-              }
-            },
+          1.0: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: Text(
+              isHindi ? 'मध्यम' : 'M',
+              style: LiquidGlassTheme.bodyStrong.copyWith(fontSize: 14),
+            ),
           ),
-        ],
+          1.15: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: Text(
+              isHindi ? 'बड़ा' : 'L',
+              style: LiquidGlassTheme.bodyStrong.copyWith(fontSize: 16),
+            ),
+          ),
+          1.3: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: Text(
+              isHindi ? 'विशाल' : 'XL',
+              style: LiquidGlassTheme.bodyStrong.copyWith(fontSize: 18),
+            ),
+          ),
+        },
+        onValueChanged: (val) {
+          if (val != null) {
+            if (state.hapticsEnabled) {
+              HapticFeedback.selectionClick();
+            }
+            state.setFontSizeScale(val);
+          }
+        },
       ),
     );
+
+    if (isMobile) {
+      return Padding(
+        padding: const EdgeInsets.all(LiquidGlassTheme.space12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            headerRow,
+            const SizedBox(height: 12),
+            control,
+          ],
+        ),
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.all(LiquidGlassTheme.space12),
+        child: Row(
+          children: [
+            Expanded(child: headerRow),
+            const SizedBox(width: 16),
+            control,
+          ],
+        ),
+      );
+    }
   }
 }

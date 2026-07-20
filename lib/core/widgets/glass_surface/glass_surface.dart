@@ -19,6 +19,7 @@ class GlassSurface extends StatelessWidget {
     this.borderColor,
     this.shadowColor,
     this.customFillColor,
+    this.borderRadius,
   });
 
   final Widget child;
@@ -33,6 +34,7 @@ class GlassSurface extends StatelessWidget {
   final Color? borderColor;
   final Color? shadowColor;
   final Color? customFillColor;
+  final BorderRadiusGeometry? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -60,13 +62,15 @@ class GlassSurface extends StatelessWidget {
             ? Colors.black.withValues(alpha: 0.25)
             : Colors.black.withValues(alpha: 0.05));
 
+    final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(radius);
+
     return Container(
       width: width,
       height: height,
       margin: margin,
       alignment: alignment,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: effectiveBorderRadius,
         boxShadow: level == GlassLevel.subtle
             ? null
             : [
@@ -79,13 +83,13 @@ class GlassSurface extends StatelessWidget {
               ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: effectiveBorderRadius,
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
           child: Container(
             decoration: BoxDecoration(
               color: fillColor,
-              borderRadius: BorderRadius.circular(radius),
+              borderRadius: effectiveBorderRadius,
               border: Border.all(color: effectiveBorderColor, width: 1.0),
             ),
             padding: padding ?? EdgeInsets.zero,

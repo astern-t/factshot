@@ -44,7 +44,20 @@ class AppState extends ChangeNotifier {
 
     _voicePitch = _prefs?.getDouble('voicePitch') ?? 1.0;
     _voiceGender = _prefs?.getString('voiceGender') ?? 'Female';
-    _fontSizeScale = _prefs?.getDouble('fontSizeScale') ?? 1.0;
+    
+    double defaultScale = 1.0;
+    try {
+      final views = WidgetsBinding.instance.platformDispatcher.views;
+      if (views.isNotEmpty) {
+        final view = views.first;
+        final size = view.physicalSize / view.devicePixelRatio;
+        if (size.width < 600) {
+          defaultScale = 0.85;
+        }
+      }
+    } catch (_) {}
+
+    _fontSizeScale = _prefs?.getDouble('fontSizeScale') ?? defaultScale;
     _hapticsEnabled = _prefs?.getBool('hapticsEnabled') ?? true;
     _useTtsSimulation = _prefs?.getBool('useTtsSimulation') ?? false;
 

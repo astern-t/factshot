@@ -66,6 +66,7 @@ class _LanguageScreenState extends State<LanguageScreen>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final accent = theme.colorScheme.primary;
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
     // Local titles based on temporary selection to give instant visual feedback
     final isHindiApp = _tempAppLang == 'Hindi';
@@ -96,13 +97,13 @@ class _LanguageScreenState extends State<LanguageScreen>
                   physics: const BouncingScrollPhysics(),
                   slivers: [
                     SliverPadding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: LiquidGlassTheme.space24,
-                        vertical: LiquidGlassTheme.space20,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isMobile ? 16.0 : LiquidGlassTheme.space24,
+                        vertical: isMobile ? 12.0 : LiquidGlassTheme.space20,
                       ),
                       sliver: SliverList(
                         delegate: SliverChildListDelegate([
-                          const SizedBox(height: LiquidGlassTheme.space20),
+                          SizedBox(height: isMobile ? 12.0 : LiquidGlassTheme.space20),
 
                           // Animated Headers
                           FadeTransition(
@@ -134,22 +135,22 @@ class _LanguageScreenState extends State<LanguageScreen>
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                   Text(
                                     titleText,
                                     style: LiquidGlassTheme.display.copyWith(
-                                      fontSize: 36,
+                                      fontSize: isMobile ? 28 : 36,
                                       fontWeight: FontWeight.w800,
                                       letterSpacing: -1.0,
                                     ),
                                   ),
-                                  const SizedBox(
-                                    height: LiquidGlassTheme.space12,
+                                  SizedBox(
+                                    height: isMobile ? 8.0 : LiquidGlassTheme.space12,
                                   ),
                                   Text(
                                     subText,
                                     style: LiquidGlassTheme.body.copyWith(
                                       color: LiquidGlassTheme.foregroundMuted,
-                                      fontSize: 15,
+                                      fontSize: isMobile ? 14 : 15,
                                       height: 1.4,
                                     ),
                                   ),
@@ -291,26 +292,31 @@ class _LanguageScreenState extends State<LanguageScreen>
                 ),
               ),
             ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              header,
-              style: LiquidGlassTheme.bodyStrong.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: LiquidGlassTheme.foreground,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: LiquidGlassTheme.caption.copyWith(
-                fontSize: 13,
-                color: LiquidGlassTheme.foregroundSoft,
-              ),
-            ),
-          ],
+        child: Builder(
+          builder: (context) {
+            final isMobile = MediaQuery.of(context).size.width < 600;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  header,
+                  style: LiquidGlassTheme.bodyStrong.copyWith(
+                    fontSize: isMobile ? 16 : 18,
+                    fontWeight: FontWeight.w800,
+                    color: LiquidGlassTheme.foreground,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: LiquidGlassTheme.caption.copyWith(
+                    fontSize: isMobile ? 12 : 13,
+                    color: LiquidGlassTheme.foregroundSoft,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -369,98 +375,226 @@ class _LanguageScreenState extends State<LanguageScreen>
                 ),
               ),
             ),
-        child: Row(
-          children: List.generate(languages.length, (index) {
-            final lang = languages[index];
-            final isSelected = lang.name == selectedLang;
+        child: Builder(
+          builder: (context) {
+            final isMobile = MediaQuery.of(context).size.width < 600;
 
-            return Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: index == 0 ? 0 : 8,
-                  right: index == languages.length - 1 ? 0 : 8,
-                ),
-                child: PressableScale(
-                  onTap: () => onSelect(lang.name),
-                  borderRadius: BorderRadius.circular(24),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOutCubic,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: isSelected
-                          ? [
-                              BoxShadow(
-                                color: lang.accentColor.withValues(
-                                  alpha: isDark ? 0.15 : 0.08,
+            if (isMobile) {
+              return Column(
+                children: List.generate(languages.length, (index) {
+                  final lang = languages[index];
+                  final isSelected = lang.name == selectedLang;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0),
+                    child: PressableScale(
+                      onTap: () => onSelect(lang.name),
+                      borderRadius: BorderRadius.circular(16),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: lang.accentColor.withValues(
+                                      alpha: isDark ? 0.15 : 0.08,
+                                    ),
+                                    blurRadius: 24,
+                                    spreadRadius: 2,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ]
+                              : [],
+                        ),
+                        child: GlassSurface(
+                          radius: 16,
+                          level: isSelected ? GlassLevel.strong : GlassLevel.subtle,
+                          tintColor: isSelected ? lang.accentColor : null,
+                          borderColor: isSelected
+                              ? lang.accentColor.withValues(alpha: 0.5)
+                              : null,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 42,
+                                height: 42,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: isSelected
+                                      ? lang.accentColor.withValues(alpha: 0.15)
+                                      : (isDark ? Colors.white : Colors.black)
+                                            .withValues(alpha: 0.05),
                                 ),
-                                blurRadius: 24,
-                                spreadRadius: 2,
-                                offset: const Offset(0, 8),
+                                child: Center(
+                                  child: Text(
+                                    lang.flag,
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                                ),
                               ),
-                            ]
-                          : [],
-                    ),
-                    child: GlassSurface(
-                      radius: 24,
-                      level: isSelected ? GlassLevel.strong : GlassLevel.subtle,
-                      tintColor: isSelected ? lang.accentColor : null,
-                      borderColor: isSelected
-                          ? lang.accentColor.withValues(alpha: 0.5)
-                          : null,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 20,
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      lang.nativeName,
+                                      style: LiquidGlassTheme.bodyStrong.copyWith(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w800,
+                                        color: isSelected
+                                            ? (isDark ? Colors.white : Colors.black87)
+                                            : LiquidGlassTheme.foreground,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      lang.name,
+                                      style: LiquidGlassTheme.caption.copyWith(
+                                        fontSize: 12,
+                                        color: isSelected
+                                            ? lang.accentColor
+                                            : LiquidGlassTheme.foregroundSoft,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                width: 20,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? (isDark ? Colors.white : lang.accentColor)
+                                        : LiquidGlassTheme.foregroundSoft.withValues(alpha: 0.4),
+                                    width: 2,
+                                  ),
+                                ),
+                                child: isSelected
+                                    ? Center(
+                                        child: Container(
+                                          width: 10,
+                                          height: 10,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: isDark ? Colors.white : lang.accentColor,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: isSelected
-                                  ? lang.accentColor.withValues(alpha: 0.15)
-                                  : (isDark ? Colors.white : Colors.black)
-                                        .withValues(alpha: 0.05),
-                            ),
-                            child: Center(
-                              child: Text(
-                                lang.flag,
-                                style: const TextStyle(fontSize: 24),
+                    ),
+                  );
+                }),
+              );
+            }
+
+            return Row(
+              children: List.generate(languages.length, (index) {
+                final lang = languages[index];
+                final isSelected = lang.name == selectedLang;
+
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: index == 0 ? 0 : 8,
+                      right: index == languages.length - 1 ? 0 : 8,
+                    ),
+                    child: PressableScale(
+                      onTap: () => onSelect(lang.name),
+                      borderRadius: BorderRadius.circular(24),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutCubic,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: lang.accentColor.withValues(
+                                      alpha: isDark ? 0.15 : 0.08,
+                                    ),
+                                    blurRadius: 24,
+                                    spreadRadius: 2,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ]
+                              : [],
+                        ),
+                        child: GlassSurface(
+                          radius: 24,
+                          level: isSelected ? GlassLevel.strong : GlassLevel.subtle,
+                          tintColor: isSelected ? lang.accentColor : null,
+                          borderColor: isSelected
+                              ? lang.accentColor.withValues(alpha: 0.5)
+                              : null,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 20,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: isSelected
+                                      ? lang.accentColor.withValues(alpha: 0.15)
+                                      : (isDark ? Colors.white : Colors.black)
+                                            .withValues(alpha: 0.05),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    lang.flag,
+                                    style: const TextStyle(fontSize: 24),
+                                  ),
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 12),
+                              Text(
+                                lang.nativeName,
+                                style: LiquidGlassTheme.bodyStrong.copyWith(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: isSelected
+                                      ? (isDark ? Colors.white : Colors.black87)
+                                      : LiquidGlassTheme.foreground,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                lang.name,
+                                style: LiquidGlassTheme.caption.copyWith(
+                                  fontSize: 12,
+                                  color: isSelected
+                                      ? lang.accentColor
+                                      : LiquidGlassTheme.foregroundSoft,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            lang.nativeName,
-                            style: LiquidGlassTheme.bodyStrong.copyWith(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: isSelected
-                                  ? (isDark ? Colors.white : Colors.black87)
-                                  : LiquidGlassTheme.foreground,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            lang.name,
-                            style: LiquidGlassTheme.caption.copyWith(
-                              fontSize: 12,
-                              color: isSelected
-                                  ? lang.accentColor
-                                  : LiquidGlassTheme.foregroundSoft,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              }),
             );
-          }),
+          }
         ),
       ),
     );

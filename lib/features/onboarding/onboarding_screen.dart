@@ -20,7 +20,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<_OnboardingPageData> _pages = const [
     _OnboardingPageData(
       icon: CupertinoIcons.doc_plaintext,
-      title: '60-Word News',
+      title: 'Word News',
       description:
           'Absorb the daily news brief in short-form cards built for quick scanning and reading on the go.',
       orbColor: Color(0xFF5AB2FF),
@@ -30,14 +30,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       title: 'Swipe to Read',
       description:
           'Swipe up or down to read through articles smoothly, one story at a time with fluid transitions.',
-      orbColor: Color(0xFF6366F1),
+      orbColor: Color(0xFF5AB2FF),
     ),
     _OnboardingPageData(
       icon: CupertinoIcons.slider_horizontal_3,
       title: 'Filter Topics',
       description:
           'Instantly filter articles by your favorite categories like Tech, Business, Sports, and India.',
-      orbColor: Color(0xFFE879F9),
+      orbColor: Color(0xFF5AB2FF),
     ),
   ];
 
@@ -81,34 +81,39 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final page = _pages[_currentIndex];
 
     return Scaffold(
-      backgroundColor: LiquidGlassTheme.background,
+      backgroundColor:
+          isDark ? const Color(0xFF000000) : LiquidGlassTheme.background,
       body: Stack(
         children: [
           // Dynamic immersive ambient background
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 900),
-            curve: Curves.easeOutCubic,
-            top: _currentIndex == 0 ? -100 : (_currentIndex == 1 ? 200 : -50),
-            right: _currentIndex == 0 ? -100 : (_currentIndex == 1 ? -200 : 50),
-            child: _AnimatedAmbientOrb(
-              color: page.orbColor,
-              size: 400,
-              isDark: isDark,
+          if (!isDark) ...[
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 900),
+              curve: Curves.easeOutCubic,
+              top: _currentIndex == 0 ? -100 : (_currentIndex == 1 ? 200 : -50),
+              right:
+                  _currentIndex == 0 ? -100 : (_currentIndex == 1 ? -200 : 50),
+              child: _AnimatedAmbientOrb(
+                color: page.orbColor,
+                size: 400,
+                isDark: isDark,
+              ),
             ),
-          ),
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 1100),
-            curve: Curves.easeOutCubic,
-            bottom: _currentIndex == 0
-                ? -150
-                : (_currentIndex == 1 ? -50 : -200),
-            left: _currentIndex == 0 ? -100 : (_currentIndex == 1 ? 100 : -150),
-            child: _AnimatedAmbientOrb(
-              color: _pages[(_currentIndex + 1) % _pages.length].orbColor,
-              size: 350,
-              isDark: isDark,
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 1100),
+              curve: Curves.easeOutCubic,
+              bottom: _currentIndex == 0
+                  ? -150
+                  : (_currentIndex == 1 ? -50 : -200),
+              left:
+                  _currentIndex == 0 ? -100 : (_currentIndex == 1 ? 100 : -150),
+              child: _AnimatedAmbientOrb(
+                color: _pages[(_currentIndex + 1) % _pages.length].orbColor,
+                size: 350,
+                isDark: isDark,
+              ),
             ),
-          ),
+          ],
 
           // Core content layer
           SafeArea(

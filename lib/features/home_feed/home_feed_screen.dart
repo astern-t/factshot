@@ -110,13 +110,16 @@ class HomeFeedScreenState extends State<HomeFeedScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 16.0),
+                SizedBox(height: MediaQuery.of(context).size.width < 600 ? 8.0 : 16.0),
                 // Top Premium Category Filter Bar (takes full width now)
                 Builder(
                   builder: (context) {
                     final screenWidth = MediaQuery.of(context).size.width;
                     final screenHeight = MediaQuery.of(context).size.height;
-                    final navHeight = (screenHeight * 0.065).clamp(48.0, 64.0);
+                    final isMobile = screenWidth < 600;
+                    final navHeight = isMobile
+                        ? (screenHeight * 0.05).clamp(38.0, 48.0)
+                        : (screenHeight * 0.065).clamp(48.0, 64.0);
 
                     return SizedBox(
                       height: navHeight,
@@ -149,7 +152,7 @@ class HomeFeedScreenState extends State<HomeFeedScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: MediaQuery.of(context).size.width < 600 ? 6.0 : 12.0),
                 // Main Feed PageView
                 Expanded(
                   child: PageView.builder(
@@ -188,9 +191,11 @@ class HomeFeedScreenState extends State<HomeFeedScreen> {
               ],
             ),
 
-            // Premium Floating Feed View Mode Selector Dock
+            // Premium Floating Feed View Mode Selector Dock (docked appropriately above bottom bar on mobile)
             Positioned(
-              bottom: 110, // Floats cleanly above standard floating shell bottom nav bar
+              bottom: MediaQuery.of(context).size.width < 600
+                  ? (50.0 + MediaQuery.of(context).padding.bottom + 16.0)
+                  : 110.0,
               left: 0,
               right: 0,
               child: Center(
@@ -811,14 +816,18 @@ class _AnimatedCategoryPill extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final accent = theme.colorScheme.primary;
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Center(
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 12.0),
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+          margin: EdgeInsets.symmetric(horizontal: isMobile ? 8.0 : 12.0),
+          padding: EdgeInsets.symmetric(
+            vertical: isMobile ? 4.0 : 8.0,
+            horizontal: 4.0,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -830,17 +839,19 @@ class _AnimatedCategoryPill extends StatelessWidget {
                       ? (isDark ? Colors.white : Colors.black)
                       : (isDark ? Colors.white54 : Colors.black54),
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                  fontSize: isSelected ? 17 : 16,
+                  fontSize: isSelected
+                      ? (isMobile ? 14 : 17)
+                      : (isMobile ? 13 : 16),
                   letterSpacing: -0.5,
                 ),
                 child: Text(category),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: isMobile ? 3 : 6),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutCubic,
-                height: 4,
-                width: isSelected ? 16 : 0,
+                height: isMobile ? 2 : 4,
+                width: isSelected ? (isMobile ? 10 : 16) : 0,
                 decoration: BoxDecoration(
                   color: accent,
                   borderRadius: BorderRadius.circular(2),
@@ -848,8 +859,8 @@ class _AnimatedCategoryPill extends StatelessWidget {
                       ? [
                           BoxShadow(
                             color: accent.withValues(alpha: 0.5),
-                            blurRadius: 8,
-                            spreadRadius: 1,
+                            blurRadius: isMobile ? 4 : 8,
+                            spreadRadius: isMobile ? 0.5 : 1,
                           ),
                         ]
                       : [],

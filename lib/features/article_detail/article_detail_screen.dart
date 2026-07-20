@@ -229,6 +229,9 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
     final isHindiApp = state.appLanguage == 'Hindi';
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth >= 600;
+    final isMobile = screenWidth < 600;
+    final bottomSafeArea = MediaQuery.of(context).padding.bottom;
+    final double dockHeight = isMobile ? (50.0 + bottomSafeArea) : 60.0;
     final horizontalPadding = isTablet ? 32.0 : 20.0;
 
     return WillPopScope(
@@ -254,9 +257,11 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                   elevation: 0,
                   leading: Center(
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 12.0),
+                      padding: EdgeInsets.only(left: isMobile ? 8.0 : 12.0),
                       child: GlassIconButton(
                         icon: Icons.chevron_left_rounded,
+                        size: isMobile ? 36 : 44,
+                        borderColor: isMobile ? Colors.transparent : null,
                         onTap: () => Navigator.of(context).pop(_localLanguage),
                       ),
                     ),
@@ -482,22 +487,32 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
               curve: Curves.easeOutBack,
               left: 16,
               right: 16,
-              bottom: _isPlayerOpen ? 104 : -200,
+              bottom: _isPlayerOpen ? (isMobile ? (dockHeight + 12.0) : 104.0) : -200.0,
               child: _buildAudioPlayerPanel(effLang, state),
             ),
 
-            // Premium Floating Bottom Action Dock
+            // Premium Floating Bottom Action Dock (touches bottom on mobile)
             Positioned(
-              left: 16,
-              right: 16,
-              bottom: 24,
+              left: isMobile ? 0 : 16,
+              right: isMobile ? 0 : 16,
+              bottom: isMobile ? 0 : 24,
               child: GlassSurface(
-                radius: LiquidGlassTheme.radius28,
+                width: isMobile ? double.infinity : null,
+                height: dockHeight,
+                radius: isMobile ? 0 : LiquidGlassTheme.radius28,
+                borderRadius: isMobile
+                    ? const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      )
+                    : null,
                 level: GlassLevel.strong,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: LiquidGlassTheme.space16,
-                  vertical: LiquidGlassTheme.space12,
-                ),
+                padding: isMobile
+                    ? EdgeInsets.fromLTRB(16, 4, 16, 4 + bottomSafeArea)
+                    : const EdgeInsets.symmetric(
+                        horizontal: LiquidGlassTheme.space16,
+                        vertical: LiquidGlassTheme.space12,
+                      ),
                 child: Row(
                   children: [
                     // Inline segmented Language selector
@@ -507,6 +522,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                     GlassIconButton(
                       icon: CupertinoIcons.headphones,
                       active: _isPlayerOpen,
+                      size: isMobile ? 38 : 52,
                       onTap: () {
                         HapticFeedback.mediumImpact();
                         setState(() {
@@ -517,22 +533,24 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                         }
                       },
                     ),
-                    const SizedBox(width: LiquidGlassTheme.space8),
+                    SizedBox(width: isMobile ? 6 : LiquidGlassTheme.space8),
                     // Bookmark Button
                     GlassIconButton(
                       icon: isBookmarked
                           ? Icons.bookmark_rounded
                           : Icons.bookmark_border_rounded,
                       active: isBookmarked,
+                      size: isMobile ? 38 : 52,
                       onTap: () {
                         HapticFeedback.mediumImpact();
                         state.toggleBookmark(widget.article.id);
                       },
                     ),
-                    const SizedBox(width: LiquidGlassTheme.space8),
+                    SizedBox(width: isMobile ? 6 : LiquidGlassTheme.space8),
                     // Share Button
                     GlassIconButton(
                       icon: Icons.ios_share_rounded,
+                      size: isMobile ? 38 : 52,
                       onTap: () {
                         HapticFeedback.mediumImpact();
                         final articleTitle = widget.article.getLocalizedTitle(effLang);

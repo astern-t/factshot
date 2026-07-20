@@ -1,6 +1,6 @@
 # FactShot — Architecture Document
 
-**Status:** v1.0 — Governs all code structure decisions. AI agents and developers must follow this structure exactly; see `04-RULES.md` for enforcement boundaries.
+**Status:** v1.1 — Reflects the current prototype architecture (using InheritedNotifier & custom transitions) and outlines the migration path to v2.0 (Riverpod & go_router).
 
 ---
 
@@ -8,28 +8,26 @@
 
 **Every distinct piece of UI or logic gets its own file. Every distinct feature gets its own folder. Nothing is bundled together "for convenience."**
 
-
-
 **Concretely, this means:**
-- A login page is not one file — it's a `login/` folder containing the page, its own widgets, and its own logic, each separated
-- A button used only on one screen still gets its own file inside that screen's `widgets/` subfolder
-- A button reused across many screens gets promoted to the shared/global widgets folder
-- No file should mix "what the screen looks like" with "how data gets fetched" — UI and logic are always separated (this is the whole point of using Riverpod — see `03-KNOWLEDGE_BASE.md`)
+- A feature or screen is not a single file — it is a dedicated folder containing the screen file and a `widgets/` subfolder for screen-specific UI components.
+- A button used only on one screen gets its own file inside that screen's `widgets/` subfolder.
+- A button reused across many screens (3+ places) gets promoted to the `lib/core/widgets/` folder.
+- Business/state logic is separated from visual representation — screens describe layouts and bind to the global state provider (`AppScope`), keeping event handlers clean.
 
 ---
 
 ## 2. Tech Stack Summary
 
-| Layer | Choice |
-|---|---|
-| Framework | Flutter (Dart) |
-| State management | Riverpod (with code generation) |
-| Navigation | go_router |
-| Backend | **Not yet decided** — Firebase or custom (see `03-KNOWLEDGE_BASE.md` Section 3). Architecture below is written so either choice slots into the same `data/` layer without restructuring the rest of the app. |
-| Local storage | Hive (offline caching) + shared_preferences (settings) |
-| Models | Freezed + json_serializable (generated immutable data classes) |
+| Layer | Prototype (v1.1) | Production Target (v2.0) |
+|---|---|---|
+| **Framework** | Flutter (Dart) | Flutter (Dart) |
+| **State Management** | `AppState` / `InheritedNotifier` (`AppScope`) | Riverpod (with code generation) |
+| **Navigation** | Vanilla `Navigator` + `GlassPageRoute` | `go_router` + `GlassPageRoute` |
+| **Local Storage** | `shared_preferences` | Hive (offline caching) + `shared_preferences` |
+| **Models** | Standard Dart data classes | Freezed + json_serializable models |
+| **Backend** | In-memory Mock Data (`mockArticles`) | Firebase or Custom API (TBD) |
 
-This is intentionally kept flexible on backend — the folder structure isolates backend-specific code into a `data/` layer precisely so that decision doesn't ripple through the whole codebase.
+The current prototype codebase uses a unified `AppState` model to drive settings, preferences, and feed configurations. This keeps the prototype modular and prepares it for a clean migration to Riverpod providers in Phase 2.
 
 ---
 
@@ -38,193 +36,121 @@ This is intentionally kept flexible on backend — the folder structure isolates
 ```
 Splash Screen
      ↓
-[First launch?] → Onboarding (3 slides + category preference) → Login/Guest choice
-     ↓ (returning user, or after onboarding)
-Login Screen (Google / Phone / Continue as Guest)
+[First launch?] → Onboarding (3 slides + accent selection) → Language Screen (App & Content languages)
+     ↓
+Login Screen (Google / Apple / Continue as Guest)
      ↓
 Home Shell (persistent bottom navigation)
-     ├── Home Feed (swipeable card stack, category filter bar)
+     ├── Home Feed (swipeable cards, category filter bar, video previews)
      │        ↓ (tap card)
-     │     Article Detail
-     ├── Explore (category grid)
+     │     Article Detail (TTS narration, custom text scaler, web source viewer)
+     ├── Explore (category grid selection)
      │        ↓ (tap category)
-     │     Home Feed, pre-filtered
-     ├── Search
+     │     Home Feed (pre-filtered)
+     ├── Search (history keywords, real-time query list)
      │        ↓ (tap result)
      │     Article Detail
-     ├── Bookmarks (Saved)
+     ├── Bookmarks (saved articles collection, swipe-to-delete)
      │        ↓ (tap item)
      │     Article Detail
-     └── Profile
-              ↓
-           Settings sub-screens (Notifications, Categories, About, etc.)
+     └── Profile (accessibility settings, narration pitch/gender toggles, light/dark mood selection)
 ```
-
-**Deep link behavior (from Section 1 of Knowledge Base):** an external share link opens directly into Article Detail, bypassing the shell if the app is opened cold — `go_router` handles this.
 
 ---
 
 ## 4. Folder & File Structure
 
-This is the authoritative structure. Every AI agent or developer working on this codebase follows this exactly. If a new feature doesn't fit cleanly into this structure, that's a signal to update this document first — not to improvise a one-off placement.
+Below is the authoritative layout of the current prototype. All features are isolated in their own modules under `lib/features/`, and shared components reside in `lib/core/`.
 
 ```
 factshot/
 │
 ├── lib/
 │   │
-│   ├── main.dart                          # App entry point ONLY — sets up ProviderScope, runs app. No logic here.
+│   ├── main.dart                          # App entry point - runs FactShotApp
 │   │
-│   ├── app/
-│   │   ├── app.dart                       # Root MaterialApp widget, theme + router wiring
-│   │   └── router/
-│   │       ├── app_router.dart            # go_router configuration — all routes defined here
-│   │       └── route_names.dart           # Route name constants (avoid magic strings)
+│   ├── app/                               # App-wide configurations and state providers
+│   │   ├── app.dart                       # Root MaterialApp widget and light/dark theme wiring
+│   │   └── app_state.dart                 # AppState ChangeNotifier and AppScope inherited provider
 │   │
-│   ├── core/                              # Shared, app-wide code that isn't feature-specific
+│   ├── core/                              # Shared, app-wide code
 │   │   ├── theme/
-│   │   │   ├── app_colors.dart            # ALL color values — the single source of truth (see 06-DESIGN.md)
-│   │   │   ├── app_typography.dart        # ALL text styles
-│   │   │   ├── app_spacing.dart           # Spacing scale constants (4/8/12/16/24/32)
-│   │   │   ├── app_radius.dart            # Corner radius constants
-│   │   │   └── app_theme.dart             # Combines the above into Flutter's ThemeData — this is what main.dart consumes
-│   │   │
-│   │   ├── constants/
-│   │   │   ├── app_strings.dart           # Static text (avoid hardcoding strings in widgets)
-│   │   │   └── app_assets.dart            # Asset path constants (image/icon paths)
+│   │   │   └── liquid_glass_theme.dart    # Central styling system (typography, colors, spacing, borders)
 │   │   │
 │   │   ├── utils/
-│   │   │   ├── date_formatter.dart        # e.g. "3 min ago" logic
-│   │   │   └── validators.dart            # Input validation helpers (e.g. phone number format)
+│   │   │   ├── article_translations.dart   # Translation helpers for news article keys
+│   │   │   ├── narration_service.dart     # Text-to-speech simulation engine
+│   │   │   ├── transition_helper.dart     # GlassPageRoute custom animations
+│   │   │   └── translations.dart          # Localized language dictionary maps
 │   │   │
-│   │   ├── errors/
-│   │   │   ├── app_exception.dart         # Custom exception types (see 04-RULES.md for error handling standards)
-│   │   │   └── error_handler.dart         # Centralized error-to-user-message mapping
-│   │   │
-│   │   └── widgets/                       # ONLY widgets used across 3+ features. Not a dumping ground.
-│   │       ├── glass_surface/
-│   │       │   └── glass_surface.dart     # The shared "glass card" building block (see 06-DESIGN.md)
-│   │       ├── primary_button/
-│   │       │   └── primary_button.dart
-│   │       ├── loading_indicator/
-│   │       │   └── loading_indicator.dart
-│   │       ├── shimmer_skeleton/
-│   │       │   └── shimmer_skeleton.dart
-│   │       └── error_view/
-│   │           └── error_view.dart
+│   │   └── widgets/                       # Standalone shared UI controls (used in 3+ features)
+│   │       ├── article_image/             # Image loaders with animation
+│   │       ├── article_list_tile_card/    # Structured card layout for bookmarks/search
+│   │       ├── article_meta_row/          # Subtitles showing source and timestamps
+│   │       ├── empty_state_card/          # Informational graphics for blank screens
+│   │       ├── fact_listen_waveform/      # Narration audio visualizer waveform
+│   │       ├── factshot_background/       # Unified theme background scaffold container
+│   │       ├── glass_button/              # Glassmorphic flat controls
+│   │       ├── glass_chip/                # Filter tags and accents
+│   │       ├── glass_icon_button/         # Glassmorphic rounded icons
+│   │       ├── glass_message/             # Animated overlay popup message pill
+│   │       ├── glass_surface/             # Main blur container shell
+│   │       ├── glass_text_field/          # Blurry input fields
+│   │       ├── pressable_scale/           # Scaling gesture haptic wrapper
+│   │       └── skeleton_block/            # Shimmer loading skeleton shapes
 │   │
-│   ├── data/                              # Everything about WHERE data comes from — isolated from UI entirely
-│   │   ├── models/
-│   │   │   ├── article/
-│   │   │   │   └── article_model.dart     # Freezed model — one model, one folder, one file
-│   │   │   ├── user/
-│   │   │   │   └── user_model.dart
-│   │   │   └── category/
-│   │   │       └── category_model.dart
-│   │   │
-│   │   ├── repositories/                  # The abstraction layer between features and raw data sources
-│   │   │   ├── article_repository.dart    # Defines HOW to get articles — features call this, never the raw data source directly
-│   │   │   ├── auth_repository.dart
-│   │   │   └── bookmark_repository.dart
-│   │   │
-│   │   └── sources/                       # The actual implementation — swappable if backend choice changes
-│   │       ├── remote/
-│   │       │   └── article_remote_source.dart   # Firebase/API calls live here specifically
-│   │       └── local/
-│   │           └── article_local_source.dart    # Hive/cache calls live here specifically
+│   ├── data/                              # Data storage & models
+│   │   └── models/
+│   │       └── article/
+│   │           └── article_model.dart     # NewsArticle entity declaration & mock database
 │   │
-│   ├── features/                          # One folder per feature/screen. This is the bulk of the app.
-│   │   │
-│   │   ├── splash/
-│   │   │   ├── splash_screen.dart
-│   │   │   └── widgets/
-│   │   │       └── splash_logo_animation.dart
-│   │   │
-│   │   ├── onboarding/
-│   │   │   ├── onboarding_screen.dart
-│   │   │   ├── widgets/
-│   │   │   │   ├── onboarding_slide.dart
-│   │   │   │   └── page_indicator_dots.dart
-│   │   │   └── providers/
-│   │   │       └── onboarding_provider.dart
-│   │   │
-│   │   ├── auth/
-│   │   │   ├── login_screen.dart          # The screen itself — layout only
-│   │   │   ├── widgets/
-│   │   │   │   ├── google_signin_button.dart
-│   │   │   │   ├── phone_signin_button.dart
-│   │   │   │   └── guest_continue_link.dart
-│   │   │   └── providers/
-│   │   │       └── auth_provider.dart     # Login logic lives here, NOT in the widget file
-│   │   │
-│   │   ├── home_feed/
-│   │   │   ├── home_feed_screen.dart
-│   │   │   ├── widgets/
-│   │   │   │   ├── news_card/
-│   │   │   │   │   └── news_card.dart
-│   │   │   │   ├── category_filter_bar/
-│   │   │   │   │   └── category_filter_bar.dart
-│   │   │   │   ├── category_chip/
-│   │   │   │   │   └── category_chip.dart
-│   │   │   │   └── card_action_row/         # bookmark/share icons row on each card
-│   │   │   │       └── card_action_row.dart
-│   │   │   └── providers/
-│   │   │       ├── feed_provider.dart
-│   │   │       └── category_filter_provider.dart
-│   │   │
-│   │   ├── article_detail/
-│   │   │   ├── article_detail_screen.dart
-│   │   │   ├── widgets/
-│   │   │   │   ├── article_hero_image.dart
-│   │   │   │   ├── article_byline.dart
-│   │   │   │   └── article_action_bar.dart
-│   │   │   └── providers/
-│   │   │       └── article_detail_provider.dart
-│   │   │
-│   │   ├── explore/
-│   │   │   ├── explore_screen.dart
-│   │   │   └── widgets/
-│   │   │       └── category_grid_card.dart
-│   │   │
-│   │   ├── search/
-│   │   │   ├── search_screen.dart
-│   │   │   ├── widgets/
-│   │   │   │   ├── search_bar_field.dart
-│   │   │   │   ├── trending_search_chip.dart
-│   │   │   │   └── recent_search_row.dart
-│   │   │   └── providers/
-│   │   │       └── search_provider.dart
-│   │   │
-│   │   ├── bookmarks/
-│   │   │   ├── bookmarks_screen.dart
-│   │   │   ├── widgets/
-│   │   │   │   ├── bookmark_list_item.dart
-│   │   │   │   └── bookmarks_empty_state.dart
-│   │   │   └── providers/
-│   │   │       └── bookmarks_provider.dart
-│   │   │
-│   │   ├── profile/
-│   │   │   ├── profile_screen.dart
-│   │   │   ├── widgets/
-│   │   │   │   ├── profile_header.dart
-│   │   │   │   └── settings_row.dart
-│   │   │   └── providers/
-│   │   │       └── profile_provider.dart
-│   │   │
-│   │   └── shell/
-│   │       ├── home_shell.dart            # The persistent bottom-nav wrapper around the 5 main tabs
-│   │       └── widgets/
-│   │           └── bottom_nav_bar.dart
-│   │
-│   └── l10n/                              # Reserved for future multi-language support (not used in V1, folder exists so structure doesn't need to change later)
+│   └── features/                          # Feature modules
+│       ├── article_detail/
+│       │   └── article_detail_screen.dart # Detail layout, font resizing, action bar, and audio controls
+│       │
+│       ├── auth/
+│       │   └── presentation/
+│       │       ├── screens/
+│       │       │   └── login_screen.dart  # Sign-in UI
+│       │       └── widgets/
+│       │           ├── apple_login_card.dart
+│       │           ├── google_login_card.dart
+│       │           ├── guest_login_card.dart
+│       │           ├── login_background.dart
+│       │           ├── login_logo.dart
+│       │           ├── privacy_footer.dart
+│       │           └── welcome_header.dart
+│       │
+│       ├── bookmarks/
+│       │   └── bookmarks_screen.dart      # Bookmark screen with dismissible/swipeable actions
+│       │
+│       ├── explore/
+│       │   └── explore_screen.dart        # Explore dashboard containing category grids
+│       │
+│       ├── home_feed/
+│       │   └── home_feed_screen.dart      # Primary news swiper feed & view mode selection
+│       │
+│       ├── language/
+│       │   └── language_screen.dart       # App interface & content language onboarding selector
+│       │
+│       ├── onboarding/
+│       │   └── onboarding_screen.dart     # PageView slide presentation & features highlight
+│       │
+│       ├── profile/
+│       │   └── profile_screen.dart        # App personalization toggles & sliders
+│       │
+│       ├── search/
+│       │   └── search_screen.dart         # Query bar with dynamic results list and search history
+│       │
+│       ├── shell/
+│       │   └── home_shell.dart            # Main navigation shell with bottom bar configuration
+│       │
+│       └── splash/
+│           # Empty directory for future animated splash implementation
 │
-├── assets/
-│   ├── images/
-│   ├── icons/
-│   └── fonts/
-│
-├── test/                                  # Mirrors lib/ structure exactly — see 04-RULES.md
-│
+├── assets/                                # Resource files (logos, svg vectors)
+├── test/
+│   └── widget_test.dart                   # Mirrors structure of lib/
 └── pubspec.yaml
 ```
 
@@ -232,31 +158,24 @@ factshot/
 
 ## 5. Why This Structure (Explaining the Reasoning)
 
-**One file per component, no exceptions, even for small things.** A button that looks like 5 lines of code still gets its own file. This feels excessive at first, but the payoff is: when you or an AI agent needs to change "the bookmark icon behavior," there's exactly one obvious file to open — `card_action_row.dart` or wherever it specifically lives — instead of hunting through a 400-line screen file.
-
-**`features/` vs `core/` — the rule for where something goes:**
-- If it's used on exactly one screen → it lives inside that feature's own `widgets/` folder
-- If it's used across 3 or more different features → it gets promoted to `core/widgets/`
-- When in doubt, start it inside the feature folder. Promoting something later is a simple move; de-tangling a shared widget that grew too many special cases is not.
-
-**`data/` is isolated from `features/` on purpose.** This is what makes the "Firebase vs custom backend" decision (still open — see `03-KNOWLEDGE_BASE.md`) safe to defer. Features never call Firebase or an API directly — they only ever talk to a `repository`. If the backend choice changes later, only the `sources/` folder needs to change; no feature code is touched.
-
-**`providers/` inside each feature folder** is where Riverpod logic lives, always separate from the `_screen.dart` file. The screen file should only describe layout — "what does this look like" — and read from providers. Business logic ("what happens when the user taps bookmark") lives in the provider, not the widget's `onPressed` callback.
+- **One file per component, no exceptions.** Keeping files small and specific reduces git conflicts and makes it easy to locate the source of visual elements or bugs.
+- **Strict core vs feature distinction:** If a widget is used solely in `auth`, it remains in `features/auth/presentation/widgets/`. Once a component is reused across 3 or more features (such as `GlassButton` or `GlassSurface`), it is moved to `core/widgets/`.
+- **Prepared for Migration:** While the app currently uses a centralized `AppState` model, this matches the business logic segregation rule. In Phase 2, the `app_state.dart` variables will cleanly map to individual Riverpod StateProviders/NotifierProviders (e.g. `bookmarksProvider`, `themeModeProvider`, `appLanguageProvider`), and the ad-hoc Navigator pushes will be mapped to a clean go_router file.
 
 ---
 
 ## 6. Naming Conventions
 
-- Files: `snake_case.dart`
-- Folders: `snake_case`
-- Classes: `PascalCase`
-- One public widget class per file, and the filename matches the class name (e.g. `NewsCard` class lives in `news_card.dart`)
-- Providers named descriptively with a `Provider` suffix (e.g. `feedProvider`, `bookmarksProvider`)
+- **Files:** `snake_case.dart`
+- **Folders:** `snake_case`
+- **Classes:** `PascalCase`
+- **Widgets:** Filename must match the name of the main class defined inside it (e.g. `LoginScreen` lives in `login_screen.dart`).
 
 ---
 
 ## 7. Related Documents
 
-- `03-KNOWLEDGE_BASE.md` — full library list and reasoning behind each tech choice referenced here
-- `04-RULES.md` — coding standards, error handling approach, and boundaries when AI agents modify this structure
-- `07-MEMORY.md` — tracks which parts of this structure are actually built vs still planned
+- `01-PROJECT_REQUIREMENTS.md` — requirements details
+- `03-KNOWLEDGE_BASE.md` — technical stack comparisons and package lists
+- `04-RULES.md` — coding rules, error management, and boundaries
+- `07-MEMORY.md` — latest development summaries and logs

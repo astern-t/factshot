@@ -157,17 +157,12 @@ lib/
 
 # Last Session
 
-Date: 2026-07-13
+Date: 2026-07-20
 Completed:
-- Integrated dynamic Day Mode (Light Theme) support across the entire app. Configured light theme color palettes, background gradient adaptivity, and a settings toggle on the Profile screen.
-- Added Language Selection screen as a step between onboarding and login pages. Integrated language preference storage in AppState and added a Language Selection modal to the Profile settings screen.
-- Fixed visual glitch/flicker (0.1s to 0.10s) when transitioning from onboarding to login page by ensuring initial home widget is resolved once at startup and doesn't swap routes during transition.
-- Split all multi-widget files in `lib/widgets/` to standalone files under `lib/core/widgets/` directory.
-- Separated models, helpers, theme systems, and core logic.
-- Moved screens inside `lib/screens/` to their designated feature folder in `lib/features/`.
-- Extracted root widget configuration to `lib/app/app.dart`.
-- Rewrote `lib/main.dart` and `test/widget_test.dart` to integrate cleanly.
-- Confirmed full code compilation with zero static analysis warnings and verified test suite execution passes.
+- Cleaned up Onboarding Screen background in dark mode: set scaffold to pure black (`0xFF000000`) and hid ambient orbs to ensure a true, distraction-free dark mode.
+- Unified Onboarding Screen colors across all pages, setting them to the app's primary theme accent color (`0xFF5AB2FF`) for consistent button highlights and container indicator details.
+- Updated `02-ARCHITECTURE.md` (Architecture Blueprint) to represent the current file structure and prototype state management details accurately, including the future migration roadmap to Riverpod and go_router in Phase 2.
+- Verified compilation and confirmed that all unit/widget tests continue to pass.
 
 ---
 

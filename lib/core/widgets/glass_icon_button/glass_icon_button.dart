@@ -11,6 +11,8 @@ class GlassIconButton extends StatelessWidget {
     this.active = false,
     this.size = 52,
     this.iconColor,
+    this.borderColor,
+    this.customFillColor,
   });
 
   final IconData icon;
@@ -18,6 +20,8 @@ class GlassIconButton extends StatelessWidget {
   final bool active;
   final double size;
   final Color? iconColor;
+  final Color? borderColor;
+  final Color? customFillColor;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +33,8 @@ class GlassIconButton extends StatelessWidget {
       radius: size / 2,
       level: active ? GlassLevel.strong : GlassLevel.subtle,
       tintColor: active ? accent : null,
+      borderColor: borderColor,
+      customFillColor: customFillColor,
       child: PressableScale(
         onTap: onTap,
         borderRadius: BorderRadius.circular(size / 2),
