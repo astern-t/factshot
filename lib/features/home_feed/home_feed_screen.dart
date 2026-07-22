@@ -395,8 +395,25 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
   @override
   bool get wantKeepAlive => true;
 
+  String _limitWordCount(String text, {int maxWords = 45}) {
+    final words = text.trim().split(RegExp(r'\s+'));
+    if (words.length <= maxWords) {
+      return text;
+    }
+    return '${words.take(maxWords).join(' ')}...';
+  }
+
   Widget _buildFeedCard(NewsArticle article, bool isBookmarked) {
     final effLang = _articleLanguages[article.id] ?? widget.appState.contentLanguage;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Solid theme-adaptive background (white for light mode, dark navy/slate for dark mode)
+    final cardBgColor = isDark ? const Color(0xFF16181D) : const Color(0xFFFFFFFF);
+    final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
+    final subTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+
+    final fullSummary = article.getLocalizedSummary(effLang);
+    final truncatedSummary = _limitWordCount(fullSummary, maxWords: 45);
 
     return GestureDetector(
       onTap: () async {
@@ -414,169 +431,273 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
           });
         }
       },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Background image (Cover)
-            Image.network(
-              article.imageUrl,
-              fit: BoxFit.cover,
-              loadingBuilder: (context, child, progress) {
-                if (progress == null) return child;
-                return Container(color: const Color(0xFF1B1B1F));
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: const Color(0xFF1B1B1F),
-                  child: const Center(
-                    child: Icon(
-                      CupertinoIcons.exclamationmark_triangle,
-                      color: Colors.white30,
-                      size: 40,
-                    ),
-                  ),
-                );
-              },
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14.0, 8.0, 14.0, 70.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: cardBgColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.black.withValues(alpha: 0.08),
+              width: 1,
             ),
-            // Dark gradient overlay
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.2),
-                    Colors.black.withValues(alpha: 0.7),
-                    Colors.black,
-                  ],
-                  stops: const [0.0, 0.4, 0.75, 1.0],
-                ),
+            boxShadow: [
+              BoxShadow(
+                color: isDark
+                    ? Colors.black.withValues(alpha: 0.45)
+                    : Colors.black.withValues(alpha: 0.08),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
               ),
-            ),
-            // Top Right Language Toggle Bar for Slide view
-            Positioned(
-              top: 24,
-              right: 24,
-              child: _CardLanguageToggle(
-                currentLanguage: effLang,
-                onChanged: (lang) {
-                  setState(() {
-                    _articleLanguages[article.id] = lang;
-                  });
-                  HapticFeedback.selectionClick();
-                },
-              ),
-            ),
-            // Bottom aligned content
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 110.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  // Category Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12.0,
-                      vertical: 6.0,
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            children: [
+              // ─── TOP 50%: MEDIA / IMAGE ───
+              Expanded(
+                flex: 50,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.network(
+                      article.imageUrl,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, progress) {
+                        if (progress == null) return child;
+                        return Container(
+                          color: isDark ? const Color(0xFF22262F) : const Color(0xFFE2E8F0),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: isDark ? const Color(0xFF22262F) : const Color(0xFFE2E8F0),
+                          child: Center(
+                            child: Icon(
+                              CupertinoIcons.photo,
+                              color: isDark ? Colors.white38 : Colors.black26,
+                              size: 40,
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    decoration: BoxDecoration(
-                      color: widget.iosBlue.withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    child: Text(
-                      AppTranslations.translate(
-                        context,
-                        'cat_${article.category.toLowerCase()}',
-                      ).toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10.0,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
+
+                    // Gentle top scrim for badge contrast
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.55),
+                            Colors.transparent,
+                          ],
+                          stops: const [0.0, 0.45],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 14.0),
-                  // Headline
-                  Text(
-                    article.getLocalizedTitle(effLang),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 26.0,
-                      fontWeight: FontWeight.bold,
-                      height: 1.2,
-                      letterSpacing: -0.5,
+
+                    // TOP-LEFT CORNER: Source Icon & Name Badge
+                    Positioned(
+                      top: 14,
+                      left: 14,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.65),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            width: 0.8,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              CupertinoIcons.news_solid,
+                              color: Colors.white,
+                              size: 13,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              article.source.toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  // Summary
-                  Text(
-                    article.getLocalizedSummary(effLang),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.7),
-                      fontSize: 14.0,
-                      height: 1.4,
+
+                    // TOP-RIGHT CORNER: Language Toggle
+                    Positioned(
+                      top: 14,
+                      right: 14,
+                      child: _CardLanguageToggle(
+                        currentLanguage: effLang,
+                        onChanged: (lang) {
+                          setState(() {
+                            _articleLanguages[article.id] = lang;
+                          });
+                          HapticFeedback.selectionClick();
+                        },
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20.0),
-                  // Bottom row: source & time, bookmark & share
-                  Row(
+                  ],
+                ),
+              ),
+
+              // ─── BOTTOM 50%: TEXT CONTENT ───
+              Expanded(
+                flex: 50,
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: Text(
-                          '${article.source.toUpperCase()} • ${article.timestamp.toUpperCase()}',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.5),
-                            fontSize: 11.0,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Category Tag Badge
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: widget.iosBlue.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  AppTranslations.translate(
+                                    context,
+                                    'cat_${article.category.toLowerCase()}',
+                                  ).toUpperCase(),
+                                  style: TextStyle(
+                                    color: widget.iosBlue,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+
+                              // Headline
+                              Text(
+                                article.getLocalizedTitle(effLang),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.25,
+                                  letterSpacing: -0.4,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+
+                              // Description (30 to 50 words)
+                              Text(
+                                truncatedSummary,
+                                maxLines: 4,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: subTextColor,
+                                  fontSize: 14.0,
+                                  height: 1.45,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      // Bookmark button
-                      GestureDetector(
-                        onTap: () {
-                          widget.appState.toggleBookmark(article.id);
-                        },
-                        child: Icon(
-                          isBookmarked
-                              ? CupertinoIcons.bookmark_fill
-                              : CupertinoIcons.bookmark,
-                          color: isBookmarked
-                              ? Colors.white
-                              : Colors.white70,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Share button
-                      GestureDetector(
-                        onTap: () {
-                          GlassMessage.show(
-                            context,
-                            widget.appState.appLanguage == 'Hindi'
-                                ? '"${article.getLocalizedTitle(effLang)}" के लिए शेयर शीट।'
-                                : 'Share sheet staged for "${article.getLocalizedTitle(effLang)}".',
-                          );
-                        },
-                        child: const Icon(
-                          CupertinoIcons.share,
-                          color: Colors.white70,
-                        ),
+
+                      const SizedBox(height: 10),
+
+                      // Bottom Action Bar: Timestamp, Bookmark, Share
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              article.timestamp.toUpperCase(),
+                              style: TextStyle(
+                                color: subTextColor.withValues(alpha: 0.7),
+                                fontSize: 11.0,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                          ),
+                          // Bookmark Button
+                          GestureDetector(
+                            onTap: () {
+                              widget.appState.toggleBookmark(article.id);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.08)
+                                    : Colors.black.withValues(alpha: 0.05),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isBookmarked
+                                    ? CupertinoIcons.bookmark_fill
+                                    : CupertinoIcons.bookmark,
+                                color: isBookmarked ? widget.iosBlue : subTextColor,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Share Button
+                          GestureDetector(
+                            onTap: () {
+                              GlassMessage.show(
+                                context,
+                                widget.appState.appLanguage == 'Hindi'
+                                    ? '"${article.getLocalizedTitle(effLang)}" के लिए शेयर शीट।'
+                                    : 'Share staged for "${article.getLocalizedTitle(effLang)}".',
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.08)
+                                    : Colors.black.withValues(alpha: 0.05),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                CupertinoIcons.share,
+                                color: subTextColor,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
