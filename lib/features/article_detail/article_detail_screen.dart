@@ -35,12 +35,6 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
   String? _localLanguage;
   final NarrationService _narrationService = NarrationService();
   bool _isPlayerOpen = false;
-
-  // Added video control variables
-  bool _showVideoControls = false;
-  Timer? _videoControlsTimer;
-
-  // Added slider dragging helper
   double? _draggingProgress;
 
   @override
@@ -70,84 +64,53 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
   }
 
   Future<void> _initVideo() async {
-    _videoController = VideoPlayerController.networkUrl(
-      Uri.parse(widget.article.videoUrl!),
-    );
-    await _videoController!.initialize();
-    _videoController!.addListener(() {
-      if (mounted) {
-        setState(() {
-          _isVideoPlaying = _videoController!.value.isPlaying;
-        });
-      }
-    });
-
-    if (mounted) {
-      setState(() => _isVideoInitialized = true);
-
-      final appState = AppState.instance;
-      final autoPlay = appState?.autoplayEnabled ?? true;
-
-      if (autoPlay) {
-        await _videoController!.setVolume(0.0);
-        await _videoController!.setLooping(true);
-        _videoController!.play();
-        setState(() {
-          _isMuted = true;
-        });
-      } else {
-        await _videoController!.setVolume(1.0);
-        setState(() {
-          _isMuted = false;
-        });
-      }
-    }
-  }
-
-  void _toggleVideoControls() {
-    setState(() {
-      _showVideoControls = !_showVideoControls;
-    });
-    _resetVideoControlsTimer();
-  }
-
-  void _resetVideoControlsTimer() {
-    _videoControlsTimer?.cancel();
-    if (_showVideoControls) {
-      _videoControlsTimer = Timer(const Duration(seconds: 3), () {
+    try {
+      _videoController = VideoPlayerController.networkUrl(
+        Uri.parse(widget.article.videoUrl!),
+      );
+      await _videoController!.initialize();
+      _videoController!.addListener(() {
         if (mounted) {
           setState(() {
-            _showVideoControls = false;
+            _isVideoPlaying = _videoController!.value.isPlaying;
           });
         }
       });
-    }
-  }
 
-  void _rewindVideo() {
-    if (_videoController != null && _isVideoInitialized) {
-      final current = _videoController!.value.position;
-      final target = current - const Duration(seconds: 10);
-      _videoController!.seekTo(target < Duration.zero ? Duration.zero : target);
-      HapticFeedback.lightImpact();
-      _resetVideoControlsTimer();
-    }
-  }
+      if (mounted) {
+        final appState = AppState.instance;
+        final autoPlay = appState?.autoplayEnabled ?? true;
 
-  void _forwardVideo() {
-    if (_videoController != null && _isVideoInitialized) {
-      final current = _videoController!.value.position;
-      final target = current + const Duration(seconds: 10);
-      final duration = _videoController!.value.duration;
-      _videoController!.seekTo(target > duration ? duration : target);
-      HapticFeedback.lightImpact();
-      _resetVideoControlsTimer();
+        await _videoController!.setLooping(true);
+
+        if (autoPlay) {
+          await _videoController!.setVolume(0.0);
+          await _videoController!.play();
+          setState(() {
+            _isVideoInitialized = true;
+            _isVideoPlaying = true;
+            _isMuted = true;
+          });
+        } else {
+          await _videoController!.setVolume(1.0);
+          setState(() {
+            _isVideoInitialized = true;
+            _isVideoPlaying = false;
+            _isMuted = false;
+          });
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isVideoInitialized = false;
+        });
+      }
     }
   }
 
   @override
   void dispose() {
-    _videoControlsTimer?.cancel();
     _narrationService.removeListener(_onNarrationChanged);
     _narrationService.stop(); // Stop narration when screen is closed
     _videoController?.dispose();
@@ -472,12 +435,6 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Custom Interactive Video Player
-                      if (widget.article.hasVideo) ...[
-                        _buildVideoSection(),
-                        const SizedBox(height: 24),
-                      ],
-
                       // Redesigned Glassmorphic Key Takeaway Card
                       GlassSurface(
                         radius: 20,
@@ -672,224 +629,6 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildVideoSection() {
-    final themeColor = Theme.of(context).colorScheme.primary;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: AspectRatio(
-        aspectRatio: _isVideoInitialized
-            ? _videoController!.value.aspectRatio
-            : 16 / 9,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            if (_isVideoInitialized)
-              GestureDetector(
-                onTap: _toggleVideoControls,
-                child: VideoPlayer(_videoController!),
-              )
-            else
-              Container(
-                color: Colors.black,
-                child: const Center(
-                  child: CupertinoActivityIndicator(
-                    color: Colors.white,
-                    radius: 16,
-                  ),
-                ),
-              ),
-
-            // Controls Overlay when initialized
-            if (_isVideoInitialized) ...[
-              AnimatedOpacity(
-                opacity: _showVideoControls ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 250),
-                child: IgnorePointer(
-                  ignoring: !_showVideoControls,
-                  child: Container(
-                    color: Colors.black.withValues(alpha: 0.5),
-                    child: Stack(
-                      children: [
-                        // Center controls (Play/Pause, Rewind, Fast-Forward)
-                        Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Rewind 10s
-                              IconButton(
-                                icon: const Icon(Icons.replay_10_rounded),
-                                color: Colors.white,
-                                iconSize: 32,
-                                onPressed: _rewindVideo,
-                              ),
-                              const SizedBox(width: 20),
-                              // Play / Pause
-                              IconButton(
-                                icon: Icon(
-                                  _isVideoPlaying
-                                      ? Icons.pause_circle_filled_rounded
-                                      : Icons.play_circle_filled_rounded,
-                                ),
-                                color: Colors.white,
-                                iconSize: 48,
-                                onPressed: () {
-                                  HapticFeedback.mediumImpact();
-                                  if (_videoController!.value.isPlaying) {
-                                    _videoController!.pause();
-                                  } else {
-                                    _videoController!.play();
-                                  }
-                                  _resetVideoControlsTimer();
-                                },
-                              ),
-                              const SizedBox(width: 20),
-                              // Forward 10s
-                              IconButton(
-                                icon: const Icon(Icons.forward_10_rounded),
-                                color: Colors.white,
-                                iconSize: 32,
-                                onPressed: _forwardVideo,
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Mute/Unmute toggle (bottom right inside overlay)
-                        Positioned(
-                          right: 12,
-                          bottom: 18,
-                          child: GestureDetector(
-                            onTap: () async {
-                              HapticFeedback.selectionClick();
-                              if (_isMuted) {
-                                await _videoController!.setVolume(1.0);
-                                setState(() {
-                                  _isMuted = false;
-                                });
-                              } else {
-                                await _videoController!.setVolume(0.0);
-                                setState(() {
-                                  _isMuted = true;
-                                });
-                              }
-                              _resetVideoControlsTimer();
-                            },
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.black.withValues(alpha: 0.6),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.15),
-                                  width: 1.0,
-                                ),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  _isMuted
-                                      ? CupertinoIcons.volume_off
-                                      : CupertinoIcons.volume_up,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Interactive Video Progress Bar (scrub bar inside overlay)
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            height: 12,
-                            padding: const EdgeInsets.only(top: 4),
-                            child: VideoProgressIndicator(
-                              _videoController!,
-                              allowScrubbing: true,
-                              colors: VideoProgressColors(
-                                playedColor: themeColor,
-                                bufferedColor: Colors.white.withValues(alpha: 0.3),
-                                backgroundColor: Colors.white.withValues(alpha: 0.1),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              // Floating Mute/Unmute button when controls are hidden
-              if (!_showVideoControls)
-                Positioned(
-                  right: 12,
-                  bottom: 12,
-                  child: GestureDetector(
-                    onTap: () async {
-                      HapticFeedback.selectionClick();
-                      if (_isMuted) {
-                        await _videoController!.setVolume(1.0);
-                        setState(() {
-                          _isMuted = false;
-                        });
-                      } else {
-                        await _videoController!.setVolume(0.0);
-                        setState(() {
-                          _isMuted = true;
-                        });
-                      }
-                    },
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.black.withValues(alpha: 0.6),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          width: 1.0,
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          _isMuted
-                              ? CupertinoIcons.volume_off
-                              : CupertinoIcons.volume_up,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
-              // Video progress indicator at the very bottom when controls are hidden
-              if (!_showVideoControls)
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: VideoProgressIndicator(
-                    _videoController!,
-                    allowScrubbing: true,
-                    colors: VideoProgressColors(
-                      playedColor: themeColor,
-                      bufferedColor: Colors.white.withValues(alpha: 0.3),
-                      backgroundColor: Colors.white.withValues(alpha: 0.1),
-                    ),
-                  ),
-                ),
-            ],
           ],
         ),
       ),
