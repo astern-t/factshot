@@ -395,7 +395,7 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
   @override
   bool get wantKeepAlive => true;
 
-  String _limitWordCount(String text, {int maxWords = 45}) {
+  String _limitWordCount(String text, {int maxWords = 60}) {
     final words = text.trim().split(RegExp(r'\s+'));
     if (words.length <= maxWords) {
       return text;
@@ -415,7 +415,7 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
     final subTextColor = isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
 
     final fullSummary = article.getLocalizedSummary(effLang);
-    final truncatedSummary = _limitWordCount(fullSummary, maxWords: 45);
+    final truncatedSummary = _limitWordCount(fullSummary, maxWords: 60);
 
     // On Mobile: Edge-to-edge full width (no card margins/border lines). On Tablet: Floating card layout.
     final outerPadding = isMobile
@@ -631,10 +631,10 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
                               ),
                               const SizedBox(height: 10),
 
-                              // Description (30 to 50 words - Larger typography)
+                              // Description (up to 60 words - Short news format)
                               Text(
                                 truncatedSummary,
-                                maxLines: 4,
+                                maxLines: 6,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: subTextColor,
