@@ -616,30 +616,30 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
                               ),
                               const SizedBox(height: 10),
 
-                              // Headline
+                              // Headline (Larger typography)
                               Text(
                                 article.getLocalizedTitle(effLang),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: textColor,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1.25,
-                                  letterSpacing: -0.4,
+                                  fontSize: isMobile ? 22.0 : 25.0,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.2,
+                                  letterSpacing: -0.5,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 10),
 
-                              // Description (30 to 50 words)
+                              // Description (30 to 50 words - Larger typography)
                               Text(
                                 truncatedSummary,
                                 maxLines: 4,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: subTextColor,
-                                  fontSize: 14.0,
-                                  height: 1.45,
+                                  fontSize: isMobile ? 15.5 : 17.0,
+                                  height: 1.42,
                                 ),
                               ),
                             ],
