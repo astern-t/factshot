@@ -274,17 +274,42 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                     background: Stack(
                       fit: StackFit.expand,
                       children: [
-                        Image.network(
-                          widget.article.imageUrl,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, progress) {
-                            if (progress == null) return child;
-                            return Container(color: LiquidGlassTheme.backgroundSecondary);
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(color: LiquidGlassTheme.backgroundSecondary);
-                          },
-                        ),
+                        if (widget.article.hasVideo && _isVideoInitialized && _videoController != null)
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                if (_videoController!.value.isPlaying) {
+                                  _videoController!.pause();
+                                  _isVideoPlaying = false;
+                                } else {
+                                  _videoController!.play();
+                                  _isVideoPlaying = true;
+                                }
+                              });
+                            },
+                            child: FittedBox(
+                              fit: BoxFit.cover,
+                              clipBehavior: Clip.hardEdge,
+                              child: SizedBox(
+                                width: _videoController!.value.size.width,
+                                height: _videoController!.value.size.height,
+                                child: VideoPlayer(_videoController!),
+                              ),
+                            ),
+                          )
+                        else
+                          Image.network(
+                            widget.article.imageUrl,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, progress) {
+                              if (progress == null) return child;
+                              return Container(color: LiquidGlassTheme.backgroundSecondary);
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(color: LiquidGlassTheme.backgroundSecondary);
+                            },
+                          ),
+
                         // Premium gradient scrim blending into background
                         DecoratedBox(
                           decoration: BoxDecoration(
@@ -292,7 +317,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Colors.black.withValues(alpha: 0.5),
+                                Colors.black.withValues(alpha: 0.55),
                                 Colors.transparent,
                                 LiquidGlassTheme.background.withValues(alpha: 0.7),
                                 LiquidGlassTheme.background,
@@ -301,6 +326,113 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                             ),
                           ),
                         ),
+
+                        // Center play icon if video is paused
+                        if (widget.article.hasVideo && _isVideoInitialized && !_isVideoPlaying)
+                          Center(
+                            child: Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.65),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                CupertinoIcons.play_fill,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                            ),
+                          ),
+
+                        // TOP-RIGHT CORNER: Source Badge & Video Indicator
+                        Positioned(
+                          top: 48,
+                          right: 16,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.65),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                width: 0.8,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  widget.article.hasVideo
+                                      ? CupertinoIcons.videocam_fill
+                                      : CupertinoIcons.news_solid,
+                                  color: widget.article.hasVideo
+                                      ? const Color(0xFFFF453A)
+                                      : Colors.white,
+                                  size: 13,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  widget.article.source.toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                if (widget.article.hasVideo) ...[
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFF453A),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: const Text(
+                                      'VIDEO',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Bottom Right Mute/Unmute Control for Video
+                        if (widget.article.hasVideo && _isVideoInitialized)
+                          Positioned(
+                            bottom: 20,
+                            right: 16,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _isMuted = !_isMuted;
+                                  _videoController!.setVolume(_isMuted ? 0.0 : 1.0);
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.65),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.2),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: Icon(
+                                  _isMuted ? CupertinoIcons.volume_off : CupertinoIcons.volume_up,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
