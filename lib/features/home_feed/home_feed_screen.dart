@@ -10,7 +10,6 @@ import 'package:factshot/core/utils/article_translations.dart';
 import 'package:factshot/features/article_detail/article_detail_screen.dart';
 import 'package:factshot/core/widgets/pressable_scale/pressable_scale.dart';
 import 'package:factshot/core/widgets/glass_surface/glass_surface.dart';
-import 'package:factshot/core/widgets/glass_icon_button/glass_icon_button.dart';
 import 'package:factshot/core/widgets/article_list_tile_card/article_list_tile_card.dart';
 import 'package:factshot/core/widgets/glass_message/glass_message.dart';
 
@@ -103,112 +102,172 @@ class HomeFeedScreenState extends State<HomeFeedScreen> {
       backgroundColor: Theme.of(context).brightness == Brightness.dark
           ? const Color(0xFF000000)
           : const Color(0xFFF2F2F7),
-      body: SafeArea(
-        bottom: false,
-        child: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: MediaQuery.of(context).size.width < 600 ? 8.0 : 16.0),
-                // Top Premium Category Filter Bar (takes full width now)
-                Builder(
-                  builder: (context) {
-                    final screenWidth = MediaQuery.of(context).size.width;
-                    final screenHeight = MediaQuery.of(context).size.height;
-                    final isMobile = screenWidth < 600;
-                    final navHeight = isMobile
-                        ? (screenHeight * 0.05).clamp(38.0, 48.0)
-                        : (screenHeight * 0.065).clamp(48.0, 64.0);
-
-                    return SizedBox(
-                      height: navHeight,
-                      child: ListView.builder(
-                        controller: _categoryScrollController,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth * 0.04,
-                        ),
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: _categories.length,
-                        itemBuilder: (context, index) {
-                          final category = _categories[index];
-                          final isSelected = _selectedCategoryIndex == index;
-
-                          return _AnimatedCategoryPill(
-                            category: _translateCategory(context, category),
-                            isSelected: isSelected,
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-                              _horizontalPageController.animateToPage(
-                                index,
-                                duration: const Duration(milliseconds: 400),
-                                curve: Curves.easeOutCubic,
-                              );
-                            },
-                          );
-                        },
+      body: Column(
+        children: [
+          // Top Bar Container (Blue or Glass based on state.useBlueTopBar toggle)
+          Container(
+            width: double.infinity,
+            decoration: state.useBlueTopBar
+                ? BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF1565C0), // Rich deep blue
+                        Color(0xFF1E88E5), // Vibrant bright blue
+                      ],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1565C0).withValues(alpha: 0.35),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
                       ),
+                    ],
+                  )
+                : const BoxDecoration(
+                    color: Colors.transparent,
+                  ),
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header Row inside Blue Top Bar
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 4.0),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            CupertinoIcons.bolt_fill,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'FACTSHOT',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Category Filter Bar inside Blue Top Bar
+                  Builder(
+                    builder: (context) {
+                      final screenWidth = MediaQuery.of(context).size.width;
+                      final screenHeight = MediaQuery.of(context).size.height;
+                      final isMobile = screenWidth < 600;
+                      final navHeight = isMobile
+                          ? (screenHeight * 0.048).clamp(36.0, 44.0)
+                          : (screenHeight * 0.06).clamp(44.0, 54.0);
+
+                      return SizedBox(
+                        height: navHeight,
+                        child: ListView.builder(
+                          controller: _categoryScrollController,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.02,
+                          ),
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: _categories.length,
+                          itemBuilder: (context, index) {
+                            final category = _categories[index];
+                            final isSelected = _selectedCategoryIndex == index;
+
+                            return _AnimatedCategoryPill(
+                              category: _translateCategory(context, category),
+                              isSelected: isSelected,
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                _horizontalPageController.animateToPage(
+                                  index,
+                                  duration: const Duration(milliseconds: 400),
+                                  curve: Curves.easeOutCubic,
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                ],
+              ),
+            ),
+          ),
+
+          // Main Body Stack
+          Expanded(
+            child: Stack(
+              children: [
+                PageView.builder(
+                  controller: _horizontalPageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _selectedCategoryIndex = index;
+                    });
+                    _scrollToCategory(index);
+                  },
+                  itemCount: _categories.length,
+                  itemBuilder: (context, catIndex) {
+                    final category = _categories[catIndex];
+                    final articles = _getArticlesForCategory(category);
+
+                    if (articles.isEmpty) {
+                      return Center(
+                        child: Text(
+                          AppTranslations.translate(context, 'no_articles'),
+                          style: TextStyle(
+                            color: LiquidGlassTheme.foregroundSoft,
+                            fontSize: 16,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return CategoryVerticalFeed(
+                      articles: articles,
+                      appState: state,
+                      iosBlue: iosBlue,
                     );
                   },
                 ),
-                SizedBox(height: MediaQuery.of(context).size.width < 600 ? 6.0 : 12.0),
-                // Main Feed PageView
-                Expanded(
-                  child: PageView.builder(
-                    controller: _horizontalPageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _selectedCategoryIndex = index;
-                      });
-                      _scrollToCategory(index);
-                    },
-                    itemCount: _categories.length,
-                    itemBuilder: (context, catIndex) {
-                      final category = _categories[catIndex];
-                      final articles = _getArticlesForCategory(category);
 
-                      if (articles.isEmpty) {
-                        return Center(
-                          child: Text(
-                            AppTranslations.translate(context, 'no_articles'),
-                            style: TextStyle(
-                              color: LiquidGlassTheme.foregroundSoft,
-                              fontSize: 16,
-                            ),
-                          ),
-                        );
-                      }
-
-                      return CategoryVerticalFeed(
-                        articles: articles,
-                        appState: state,
-                        iosBlue: iosBlue,
-                      );
-                    },
+                // Premium Floating Feed View Mode Selector Dock
+                Positioned(
+                  bottom: MediaQuery.of(context).size.width < 600
+                      ? (50.0 + MediaQuery.of(context).padding.bottom + 16.0)
+                      : 110.0,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: FeedModeSelectorDock(
+                      currentMode: state.feedMode == FeedMode.book ? FeedMode.slide : state.feedMode,
+                      onModeChanged: (mode) {
+                        state.setFeedMode(mode);
+                      },
+                    ),
                   ),
                 ),
               ],
             ),
-
-            // Premium Floating Feed View Mode Selector Dock (docked appropriately above bottom bar on mobile)
-            Positioned(
-              bottom: MediaQuery.of(context).size.width < 600
-                  ? (50.0 + MediaQuery.of(context).padding.bottom + 16.0)
-                  : 110.0,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: FeedModeSelectorDock(
-                  currentMode: state.feedMode == FeedMode.book ? FeedMode.slide : state.feedMode,
-                  onModeChanged: (mode) {
-                    state.setFeedMode(mode);
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -813,10 +872,19 @@ class _AnimatedCategoryPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final accent = theme.colorScheme.primary;
+    final state = AppScope.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = Theme.of(context).colorScheme.primary;
     final isMobile = MediaQuery.of(context).size.width < 600;
+    final isBlueBar = state.useBlueTopBar;
+
+    final textColor = isBlueBar
+        ? (isSelected ? Colors.white : Colors.white.withValues(alpha: 0.75))
+        : (isSelected
+            ? (isDark ? Colors.white : Colors.black)
+            : (isDark ? Colors.white54 : Colors.black54));
+
+    final indicatorColor = isBlueBar ? Colors.white : accent;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -835,9 +903,7 @@ class _AnimatedCategoryPill extends StatelessWidget {
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutCubic,
                 style: TextStyle(
-                  color: isSelected
-                      ? (isDark ? Colors.white : Colors.black)
-                      : (isDark ? Colors.white54 : Colors.black54),
+                  color: textColor,
                   fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   fontSize: isSelected
                       ? (isMobile ? 14 : 17)
@@ -850,15 +916,15 @@ class _AnimatedCategoryPill extends StatelessWidget {
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutCubic,
-                height: isMobile ? 2 : 4,
-                width: isSelected ? (isMobile ? 10 : 16) : 0,
+                height: isMobile ? 2.5 : 4,
+                width: isSelected ? (isMobile ? 12 : 20) : 0,
                 decoration: BoxDecoration(
-                  color: accent,
+                  color: indicatorColor,
                   borderRadius: BorderRadius.circular(2),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: accent.withValues(alpha: 0.5),
+                            color: indicatorColor.withValues(alpha: 0.8),
                             blurRadius: isMobile ? 4 : 8,
                             spreadRadius: isMobile ? 0.5 : 1,
                           ),

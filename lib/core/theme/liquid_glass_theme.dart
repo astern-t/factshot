@@ -146,6 +146,12 @@ class LiquidGlassTheme {
       brightness: isDark ? Brightness.dark : Brightness.light,
       scaffoldBackgroundColor: localBackground,
       colorScheme: colorScheme,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF1E88E5),
+        foregroundColor: Colors.white,
+        elevation: 2,
+        shadowColor: Color(0x33000000),
+      ),
       textTheme: TextTheme(
         displayLarge: display.copyWith(color: localForeground),
         headlineLarge: headline.copyWith(color: localForeground),

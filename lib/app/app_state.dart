@@ -60,6 +60,7 @@ class AppState extends ChangeNotifier {
     _fontSizeScale = _prefs?.getDouble('fontSizeScale') ?? defaultScale;
     _hapticsEnabled = _prefs?.getBool('hapticsEnabled') ?? true;
     _useTtsSimulation = _prefs?.getBool('useTtsSimulation') ?? false;
+    _useBlueTopBar = _prefs?.getBool('useBlueTopBar') ?? true;
 
     _isInitialized = true;
     notifyListeners();
@@ -86,6 +87,7 @@ class AppState extends ChangeNotifier {
   double _fontSizeScale = 1.0;
   bool _hapticsEnabled = true;
   bool _useTtsSimulation = false;
+  bool _useBlueTopBar = true;
 
   final Set<String> _bookmarkedIds = {'art-1', 'art-3'};
   final List<String> _recentSearches = <String>[
@@ -118,6 +120,7 @@ class AppState extends ChangeNotifier {
   double get fontSizeScale => _fontSizeScale;
   bool get hapticsEnabled => _hapticsEnabled;
   bool get useTtsSimulation => _useTtsSimulation;
+  bool get useBlueTopBar => _useBlueTopBar;
 
   UnmodifiableSetView<String> get bookmarkedIds =>
       UnmodifiableSetView<String>(_bookmarkedIds);
@@ -210,6 +213,15 @@ class AppState extends ChangeNotifier {
     _contentLanguage = value;
     _prefs?.setString('appLanguage', value);
     _prefs?.setString('contentLanguage', value);
+    notifyListeners();
+  }
+
+  void setUseBlueTopBar(bool value) {
+    if (_useBlueTopBar == value) {
+      return;
+    }
+    _useBlueTopBar = value;
+    _prefs?.setBool('useBlueTopBar', value);
     notifyListeners();
   }
 

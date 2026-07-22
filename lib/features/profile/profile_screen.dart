@@ -173,6 +173,17 @@ class ProfileScreen extends StatelessWidget {
                       state: state,
                       iconColor: const Color(0xFFF59E0B),
                     ),
+                    const _SettingsDivider(),
+                    _ToggleTile(
+                      icon: CupertinoIcons.rectangle_topthird_inset,
+                      title: isHindiApp ? 'ब्लू टॉप बार' : 'Vibrant Blue Top Bar',
+                      subtitle: isHindiApp
+                          ? 'समीक्षा के लिए टॉप बार बैकग्राउंड को नीले रंग में स्विच करें।'
+                          : 'Toggle the top bar background color between vibrant blue and glass for design review.',
+                      value: state.useBlueTopBar,
+                      onChanged: state.setUseBlueTopBar,
+                      iconColor: const Color(0xFF1E88E5),
+                    ),
                   ],
                 ),
               ),

@@ -92,14 +92,78 @@ class _SearchScreenState extends State<SearchScreen> {
     final state = AppScope.of(context);
     return Scaffold(
       body: FactShotBackground(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(LiquidGlassTheme.space20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Search', style: LiquidGlassTheme.display),
-                const SizedBox(height: LiquidGlassTheme.space16),
+        child: Column(
+          children: [
+            // Top Bar Container (Blue or Glass based on state.useBlueTopBar toggle)
+            if (state.useBlueTopBar)
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF1565C0), // Deep vibrant blue
+                      Color(0xFF1E88E5), // Rich bright blue
+                    ],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF1565C0).withValues(alpha: 0.35),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20.0, 12.0, 20.0, 16.0),
+                    child: Row(
+                      children: const [
+                        Icon(
+                          CupertinoIcons.search,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Search',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            else
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 8.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Search', style: LiquidGlassTheme.display),
+                  ),
+                ),
+              ),
+
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  LiquidGlassTheme.space20,
+                  LiquidGlassTheme.space16,
+                  LiquidGlassTheme.space20,
+                  LiquidGlassTheme.space20,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                 GlassTextField(
                   controller: _controller,
                   hintText: 'Titles, categories, sources',
@@ -156,8 +220,10 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
         ),
-      ),
-    );
+      ],
+    ),
+  ),
+);
   }
 }
 
