@@ -406,6 +406,8 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
   Widget _buildFeedCard(NewsArticle article, bool isBookmarked) {
     final effLang = _articleLanguages[article.id] ?? widget.appState.contentLanguage;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mediaQuery = MediaQuery.of(context);
+    final isMobile = mediaQuery.size.width < 600;
 
     // Solid theme-adaptive background (white for light mode, dark navy/slate for dark mode)
     final cardBgColor = isDark ? const Color(0xFF16181D) : const Color(0xFFFFFFFF);
@@ -414,6 +416,38 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
 
     final fullSummary = article.getLocalizedSummary(effLang);
     final truncatedSummary = _limitWordCount(fullSummary, maxWords: 45);
+
+    // On Mobile: Edge-to-edge full width (no card margins/border lines). On Tablet: Floating card layout.
+    final outerPadding = isMobile
+        ? EdgeInsets.zero
+        : const EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 70.0);
+
+    final cardBorderRadius = isMobile ? BorderRadius.zero : BorderRadius.circular(20);
+
+    final cardBorder = isMobile
+        ? null
+        : Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : Colors.black.withValues(alpha: 0.08),
+            width: 1,
+          );
+
+    final cardShadow = isMobile
+        ? null
+        : [
+            BoxShadow(
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.45)
+                  : Colors.black.withValues(alpha: 0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ];
+
+    final contentPadding = isMobile
+        ? EdgeInsets.fromLTRB(16.0, 14.0, 16.0, 50.0 + mediaQuery.padding.bottom + 12.0)
+        : const EdgeInsets.all(18.0);
 
     return GestureDetector(
       onTap: () async {
@@ -432,26 +466,13 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
         }
       },
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14.0, 8.0, 14.0, 70.0),
+        padding: outerPadding,
         child: Container(
           decoration: BoxDecoration(
             color: cardBgColor,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.08)
-                  : Colors.black.withValues(alpha: 0.08),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: isDark
-                    ? Colors.black.withValues(alpha: 0.45)
-                    : Colors.black.withValues(alpha: 0.08),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            borderRadius: cardBorderRadius,
+            border: cardBorder,
+            boxShadow: cardShadow,
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -559,7 +580,7 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
               Expanded(
                 flex: 50,
                 child: Padding(
-                  padding: const EdgeInsets.all(18.0),
+                  padding: contentPadding,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
