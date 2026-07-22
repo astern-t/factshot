@@ -134,37 +134,8 @@ class HomeFeedScreenState extends State<HomeFeedScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header Row inside Blue Top Bar
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 4.0),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            CupertinoIcons.bolt_fill,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        const Text(
-                          'FACTSHOT',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Category Filter Bar inside Blue Top Bar
+                  const SizedBox(height: 4),
+                  // Category Filter Bar inside Top Bar
                   Builder(
                     builder: (context) {
                       final screenWidth = MediaQuery.of(context).size.width;
