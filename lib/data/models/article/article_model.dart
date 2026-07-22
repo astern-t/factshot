@@ -59,6 +59,8 @@ final List<NewsArticle> mockArticles = [
         'ISRO has announced its next major milestone: the Gaganyaan-2 mission. Following the success of Chandrayaan-3 and the upcoming crewed Earth orbit test, Gaganyaan-2 aims to send three Indian astronauts into lunar orbit by 2028.\n\nSpeaking at a space summit, the ISRO Chairman detailed that the spacecraft will spend 14 days orbiting the moon at an altitude of 100 kilometers. The mission will test life-support systems in deep space, radiation shielding, and autonomous return navigation.\n\nUpgrades to the Launch Vehicle Mark 3 (LVM3) are already underway. A new semi-cryogenic engine will replace the current liquid stage to provide the necessary thrust. The development represents a collaborative effort with multiple private Indian aerospace firms, showcasing India\'s rapidly maturing commercial space ecosystem.',
     imageUrl:
         'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=800',
+    videoUrl:
+        'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
     source: 'The Hindu',
     timestamp: '1h ago',
     readTimeMinutes: 4,

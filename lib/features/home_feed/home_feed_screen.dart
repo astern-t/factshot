@@ -12,6 +12,7 @@ import 'package:factshot/core/widgets/pressable_scale/pressable_scale.dart';
 import 'package:factshot/core/widgets/glass_surface/glass_surface.dart';
 import 'package:factshot/core/widgets/article_list_tile_card/article_list_tile_card.dart';
 import 'package:factshot/core/widgets/glass_message/glass_message.dart';
+import 'package:video_player/video_player.dart';
 
 class HomeFeedScreen extends StatefulWidget {
   const HomeFeedScreen({super.key});
@@ -454,28 +455,35 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.network(
-                      article.imageUrl,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, progress) {
-                        if (progress == null) return child;
-                        return Container(
-                          color: isDark ? const Color(0xFF22262F) : const Color(0xFFE2E8F0),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: isDark ? const Color(0xFF22262F) : const Color(0xFFE2E8F0),
-                          child: Center(
-                            child: Icon(
-                              CupertinoIcons.photo,
-                              color: isDark ? Colors.white38 : Colors.black26,
-                              size: 40,
+                    if (article.hasVideo)
+                      _SlideVideoPlayer(
+                        videoUrl: article.videoUrl!,
+                        imageUrl: article.imageUrl,
+                        isDark: isDark,
+                      )
+                    else
+                      Image.network(
+                        article.imageUrl,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return Container(
+                            color: isDark ? const Color(0xFF22262F) : const Color(0xFFE2E8F0),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: isDark ? const Color(0xFF22262F) : const Color(0xFFE2E8F0),
+                            child: Center(
+                              child: Icon(
+                                CupertinoIcons.photo,
+                                color: isDark ? Colors.white38 : Colors.black26,
+                                size: 40,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
 
                     // Gentle top scrim for badge contrast
                     DecoratedBox(
@@ -492,7 +500,7 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
                       ),
                     ),
 
-                    // TOP-LEFT CORNER: Source Icon & Name Badge
+                    // TOP-LEFT CORNER: Source Icon & Name Badge (with VIDEO badge if applicable)
                     Positioned(
                       top: 14,
                       left: 14,
@@ -509,9 +517,9 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
-                              CupertinoIcons.news_solid,
-                              color: Colors.white,
+                            Icon(
+                              article.hasVideo ? CupertinoIcons.videocam_fill : CupertinoIcons.news_solid,
+                              color: article.hasVideo ? const Color(0xFFFF453A) : Colors.white,
                               size: 13,
                             ),
                             const SizedBox(width: 6),
@@ -524,6 +532,24 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
                                 letterSpacing: 0.5,
                               ),
                             ),
+                            if (article.hasVideo) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFF453A),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'VIDEO',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -1048,6 +1074,153 @@ class _AnimatedCategoryPill extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SlideVideoPlayer extends StatefulWidget {
+  const _SlideVideoPlayer({
+    required this.videoUrl,
+    required this.imageUrl,
+    required this.isDark,
+  });
+
+  final String videoUrl;
+  final String imageUrl;
+  final bool isDark;
+
+  @override
+  State<_SlideVideoPlayer> createState() => _SlideVideoPlayerState();
+}
+
+class _SlideVideoPlayerState extends State<_SlideVideoPlayer> {
+  VideoPlayerController? _controller;
+  bool _isInitialized = false;
+  bool _isMuted = true;
+  bool _isPlaying = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _initVideo();
+  }
+
+  Future<void> _initVideo() async {
+    try {
+      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+      await _controller!.initialize();
+      if (mounted) {
+        await _controller!.setVolume(0.0);
+        await _controller!.setLooping(true);
+        await _controller!.play();
+        setState(() {
+          _isInitialized = true;
+          _isPlaying = true;
+        });
+      }
+    } catch (_) {}
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  void _togglePlayPause() {
+    if (_controller == null || !_isInitialized) return;
+    setState(() {
+      if (_controller!.value.isPlaying) {
+        _controller!.pause();
+        _isPlaying = false;
+      } else {
+        _controller!.play();
+        _isPlaying = true;
+      }
+    });
+  }
+
+  void _toggleMute() {
+    if (_controller == null || !_isInitialized) return;
+    setState(() {
+      _isMuted = !_isMuted;
+      _controller!.setVolume(_isMuted ? 0.0 : 1.0);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isInitialized || _controller == null) {
+      return Image.network(
+        widget.imageUrl,
+        fit: BoxFit.cover,
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+          return Container(
+            color: widget.isDark ? const Color(0xFF22262F) : const Color(0xFFE2E8F0),
+          );
+        },
+      );
+    }
+
+    return GestureDetector(
+      onTap: _togglePlayPause,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          FittedBox(
+            fit: BoxFit.cover,
+            clipBehavior: Clip.hardEdge,
+            child: SizedBox(
+              width: _controller!.value.size.width,
+              height: _controller!.value.size.height,
+              child: VideoPlayer(_controller!),
+            ),
+          ),
+
+          // Center play/pause icon overlay when paused
+          if (!_isPlaying)
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.65),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  CupertinoIcons.play_fill,
+                  color: Colors.white,
+                  size: 28,
+                ),
+              ),
+            ),
+
+          // Mute / Unmute Control Button in Bottom Right of media box
+          Positioned(
+            bottom: 12,
+            right: 12,
+            child: GestureDetector(
+              onTap: _toggleMute,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.65),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    width: 0.8,
+                  ),
+                ),
+                child: Icon(
+                  _isMuted ? CupertinoIcons.volume_off : CupertinoIcons.volume_up,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
