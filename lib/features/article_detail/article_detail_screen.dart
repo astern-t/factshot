@@ -452,29 +452,6 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 28),
-
-                      // Mock Prototype Footer note
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: LiquidGlassTheme.backgroundSecondary,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: LiquidGlassTheme.outline.withValues(alpha: 0.5),
-                            width: 1,
-                          ),
-                        ),
-                        child: Text(
-                          isHindiApp
-                              ? 'इस प्रोटोटाइप में स्रोत पहुंच, साझाकरण और बुकमार्किंग नकली लेकिन राज्य-आधारित हैं ताकि प्रत्येक नियंत्रण सुचारू रूप से कार्य करे।'
-                              : 'Source access, sharing, and bookmarking are mocked but stateful in this prototype so every visible control stays honest.',
-                          style: LiquidGlassTheme.caption.copyWith(
-                            fontSize: 12,
-                            height: 1.4,
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
