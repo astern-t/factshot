@@ -7,11 +7,15 @@ class SkeletonBlock extends StatefulWidget {
     this.height = 14,
     this.width,
     this.radius = LiquidGlassTheme.radius12,
+    this.baseColor,
+    this.highlightColor,
   });
 
   final double height;
   final double? width;
   final double radius;
+  final Color? baseColor;
+  final Color? highlightColor;
 
   @override
   State<SkeletonBlock> createState() => _SkeletonBlockState();
@@ -38,6 +42,16 @@ class _SkeletonBlockState extends State<SkeletonBlock>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = LiquidGlassTheme.isDark;
+    final base = widget.baseColor ??
+        (isDark
+            ? Colors.white.withValues(alpha: 0.06)
+            : Colors.black.withValues(alpha: 0.07));
+    final highlight = widget.highlightColor ??
+        (isDark
+            ? Colors.white.withValues(alpha: 0.18)
+            : Colors.black.withValues(alpha: 0.16));
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -50,9 +64,9 @@ class _SkeletonBlockState extends State<SkeletonBlock>
               begin: Alignment(-1.2 + (_controller.value * 2.4), -0.2),
               end: Alignment(1.2 + (_controller.value * 2.4), 0.2),
               colors: [
-                Colors.white.withValues(alpha: 0.05),
-                Colors.white.withValues(alpha: 0.16),
-                Colors.white.withValues(alpha: 0.05),
+                base,
+                highlight,
+                base,
               ],
             ),
           ),

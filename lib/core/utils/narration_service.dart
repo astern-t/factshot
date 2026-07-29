@@ -165,18 +165,28 @@ class NarrationService extends ChangeNotifier {
     if (Platform.isLinux) {
       try {
         final spdLang = (language == 'Hindi') ? 'hi' : 'en';
+        final gender = AppState.instance?.voiceGender ?? 'Female';
+        final spdType = (gender == 'Male') ? 'male' : 'female';
+        final espeakVariant = (gender == 'Male') ? '$spdLang+m3' : '$spdLang+f2';
+
         int spdRate = 0;
         if (_speedMultiplier == 0.75) spdRate = -25;
         if (_speedMultiplier == 1.25) spdRate = 25;
         if (_speedMultiplier == 1.5) spdRate = 50;
         if (_speedMultiplier == 2.0) spdRate = 80;
 
-        // Fire process call to run the system Speech Dispatcher (native audio synthesis on Linux)
-        await Process.run('spd-say', [
+        final cleanText = text.replaceAll(RegExp(r'[\r\n]+'), ' ').replaceAll('"', '');
+
+        final res = await Process.run('spd-say', [
           '-l', spdLang,
+          '-t', spdType,
           '-r', spdRate.toString(),
-          text,
+          cleanText,
         ]);
+        
+        if (res.exitCode != 0) {
+          await Process.run('espeak', ['-v', espeakVariant, cleanText]);
+        }
         
         _state = NarrationState.playing;
         notifyListeners();
@@ -190,6 +200,11 @@ class NarrationService extends ChangeNotifier {
 
     if (_isNativeTtsActive) {
       try {
+        await _flutterTts.setVolume(1.0);
+        await _flutterTts.setSpeechRate(_getSpeechRate());
+        final pitch = AppState.instance?.voicePitch ?? 1.0;
+        await _flutterTts.setPitch(pitch);
+
         final List<dynamic>? languages = await _flutterTts.getLanguages;
         if (languages != null && languages.isNotEmpty) {
           final targetPrefix = (language == 'Hindi') ? 'hi' : 'en';
@@ -201,10 +216,28 @@ class NarrationService extends ChangeNotifier {
         }
 
         await _flutterTts.setLanguage(_currentLangCode);
-        await _flutterTts.setSpeechRate(_getSpeechRate());
-        await _flutterTts.setVolume(1.0);
-        final pitch = AppState.instance?.voicePitch ?? 1.0;
-        await _flutterTts.setPitch(pitch);
+
+        // Filter and set Voice Gender if available
+        final preferredGender = (AppState.instance?.voiceGender ?? 'Female').toLowerCase();
+        try {
+          final List<dynamic>? voices = await _flutterTts.getVoices;
+          if (voices != null && voices.isNotEmpty) {
+            for (final v in voices) {
+              if (v is Map) {
+                final name = v['name']?.toString().toLowerCase() ?? '';
+                final locale = v['locale']?.toString().toLowerCase() ?? '';
+                if (locale.startsWith(_currentLangCode.substring(0, 2)) &&
+                    name.contains(preferredGender)) {
+                  await _flutterTts.setVoice({
+                    "name": v['name'].toString(),
+                    "locale": v['locale'].toString(),
+                  });
+                  break;
+                }
+              }
+            }
+          }
+        } catch (_) {}
 
         final result = await _flutterTts.speak(text);
         final isSuccess = result == 1 || result == true;

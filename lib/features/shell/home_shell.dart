@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:factshot/app/app_state.dart';
 import 'package:factshot/core/theme/liquid_glass_theme.dart';
 import 'package:factshot/core/widgets/glass_surface/glass_surface.dart';
+import 'package:factshot/core/utils/notification_service.dart';
 import 'package:factshot/features/home_feed/home_feed_screen.dart';
 import 'package:factshot/features/profile/profile_screen.dart';
 import 'package:factshot/features/search/search_screen.dart';
@@ -18,6 +21,26 @@ class _MainNavigationState extends State<MainNavigation> {
   final GlobalKey<HomeFeedScreenState> _homeFeedKey =
       GlobalKey<HomeFeedScreenState>();
   int _currentTab = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initNotificationsAndPermissions();
+    });
+  }
+
+  Future<void> _initNotificationsAndPermissions() async {
+    final service = FactShotNotificationService();
+    await service.requestPermissionOnLaunch();
+    if (mounted) {
+      final state = AppScope.of(context);
+      await service.scheduleDailyBriefings(
+        morningEnabled: state.morningNotificationEnabled,
+        nightEnabled: state.nightNotificationEnabled,
+      );
+    }
+  }
 
   late final List<Widget> _screens = [
     HomeFeedScreen(key: _homeFeedKey),
@@ -75,7 +98,9 @@ class _MainNavigationState extends State<MainNavigation> {
               final mediaQuery = MediaQuery.of(context);
               final isMobile = mediaQuery.size.width < 600;
               final bottomSafeArea = mediaQuery.padding.bottom;
-              final double scrimHeight = isMobile ? (50 + bottomSafeArea + 12) : 96;
+              final double scrimHeight = isMobile
+                  ? (50 + bottomSafeArea + 12)
+                  : 96;
 
               return Positioned(
                 left: 0,
@@ -106,29 +131,24 @@ class _MainNavigationState extends State<MainNavigation> {
           // Ultra-Premium Floating Nav Bar (touches the bottom on mobile)
           Builder(
             builder: (context) {
-              final mediaQuery = MediaQuery.of(context);
-              final screenWidth = mediaQuery.size.width;
-              final bottomSafeArea = mediaQuery.padding.bottom;
-              final isMobile = screenWidth < 600;
+              final bottomSafeArea = MediaQuery.paddingOf(context).bottom;
 
-              final double navBarWidth = isMobile ? double.infinity : 340;
-              final double navBarHeight = isMobile ? (50 + bottomSafeArea) : 60;
-              final double navBarRadius = isMobile ? 0 : 36;
-              final EdgeInsets navBarPadding = isMobile
-                  ? EdgeInsets.fromLTRB(16, 4, 16, 4 + bottomSafeArea)
-                  : const EdgeInsets.symmetric(horizontal: 10, vertical: 10);
-              final double indicatorSize = isMobile ? 40 : 52;
-              final BorderRadiusGeometry? navBarBorderRadius = isMobile
-                  ? const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
-                    )
-                  : null;
+              final double navBarWidth = double.infinity;
+              final double navBarHeight = 50 + bottomSafeArea;
+              final double navBarRadius = 0;
+              final EdgeInsets navBarPadding = EdgeInsets.fromLTRB(
+                16,
+                4,
+                16,
+                4 + bottomSafeArea,
+              );
+              final double indicatorSize = 40;
+              final BorderRadiusGeometry navBarBorderRadius = BorderRadius.zero;
 
               return Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: isMobile ? 0 : 24),
+                  padding: EdgeInsets.zero,
                   child: GlassSurface(
                     width: navBarWidth,
                     height: navBarHeight,
@@ -148,7 +168,8 @@ class _MainNavigationState extends State<MainNavigation> {
                         // The Blue Circular Indicator perfectly contained inside
                         AnimatedAlign(
                           duration: const Duration(milliseconds: 500),
-                          curve: Curves.easeInOutBack, // smoother, slightly curved slide
+                          curve: Curves
+                              .easeInOutBack, // smoother, slightly curved slide
                           alignment: Alignment(-1 + (_currentTab * 1.0), 0),
                           child: FractionallySizedBox(
                             widthFactor: 1 / 3, // Since there are 3 tabs
@@ -169,7 +190,8 @@ class _MainNavigationState extends State<MainNavigation> {
                         Row(
                           children: [
                             _NavItem(
-                              icon: CupertinoIcons.house, // Using standard outline icons like the image
+                              icon: CupertinoIcons
+                                  .house, // Using standard outline icons like the image
                               active: _currentTab == 0,
                               onTap: () {
                                 if (_currentTab != 0) {

@@ -14,6 +14,7 @@ import 'package:factshot/core/utils/article_translations.dart';
 import 'package:factshot/core/utils/narration_service.dart';
 import 'package:factshot/core/widgets/fact_listen_waveform/fact_listen_waveform.dart';
 import 'package:video_player/video_player.dart';
+import 'package:factshot/core/widgets/skeleton_block/skeleton_block.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -266,7 +267,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                             fit: BoxFit.cover,
                             loadingBuilder: (context, child, progress) {
                               if (progress == null) return child;
-                              return Container(color: LiquidGlassTheme.backgroundSecondary);
+                              return const SkeletonBlock(radius: 0);
                             },
                             errorBuilder: (context, error, stackTrace) {
                               return Container(color: LiquidGlassTheme.backgroundSecondary);
@@ -600,6 +601,24 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                       },
                     ),
                     SizedBox(width: isMobile ? 6 : LiquidGlassTheme.space8),
+                    // Aa Font Size Button
+                    GlassIconButton(
+                      icon: Icons.text_fields_rounded,
+                      size: isMobile ? 38 : 52,
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        final current = state.fontSizeScale;
+                        final next = current < 0.95
+                            ? 1.0
+                            : (current > 1.1 ? 0.85 : 1.2);
+                        state.setFontSizeScale(next);
+                        final label = next == 0.85
+                            ? 'Small'
+                            : (next == 1.2 ? 'Large' : 'Medium');
+                        GlassMessage.show(context, 'Text Size: $label');
+                      },
+                    ),
+                    SizedBox(width: isMobile ? 6 : LiquidGlassTheme.space8),
                     // Bookmark Button
                     GlassIconButton(
                       icon: isBookmarked
@@ -762,7 +781,43 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (isCurrentArticle)
+                    if (isCurrentArticle) ...[
+                      GestureDetector(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          final current = _narrationService.speedMultiplier;
+                          final next = current == 1.0
+                              ? 1.25
+                              : (current == 1.25
+                                  ? 1.5
+                                  : (current == 1.5
+                                      ? 2.0
+                                      : (current == 2.0 ? 0.75 : 1.0)));
+                          _narrationService.setSpeed(next);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: accent.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: accent.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Text(
+                            '${_narrationService.speedMultiplier}x',
+                            style: TextStyle(
+                              color: accent,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       Text(
                         '${_formatDuration(_narrationService.estimatedElapsedSeconds)} / ${_formatDuration(_narrationService.estimatedDurationSeconds)}',
                         style: LiquidGlassTheme.caption.copyWith(
@@ -771,6 +826,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 4),

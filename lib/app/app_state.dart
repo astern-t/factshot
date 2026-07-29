@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum GlassMode { dark, tinted }
+
 enum FeedMode { grid, slide, book, list }
 
 class AppState extends ChangeNotifier {
+  static final ValueNotifier<int> slideChangeNotifier = ValueNotifier<int>(0);
   static AppState? _instance;
   static AppState? get instance => _instance;
 
@@ -44,7 +46,7 @@ class AppState extends ChangeNotifier {
 
     _voicePitch = _prefs?.getDouble('voicePitch') ?? 1.0;
     _voiceGender = _prefs?.getString('voiceGender') ?? 'Female';
-    
+
     double defaultScale = 1.0;
     try {
       final views = WidgetsBinding.instance.platformDispatcher.views;
@@ -60,7 +62,16 @@ class AppState extends ChangeNotifier {
     _fontSizeScale = _prefs?.getDouble('fontSizeScale') ?? defaultScale;
     _hapticsEnabled = _prefs?.getBool('hapticsEnabled') ?? true;
     _useTtsSimulation = _prefs?.getBool('useTtsSimulation') ?? false;
-    _useBlueTopBar = _prefs?.getBool('useBlueTopBar') ?? true;
+    _useBlueTopBar = _prefs?.getBool('useBlueTopBar') ?? false;
+    _showFeedModeSelector = _prefs?.getBool('showFeedModeSelector') ?? true;
+    _savedViewMode = _prefs?.getString('savedViewMode') ?? 'list';
+    _voiceGender = _prefs?.getString('voiceGender') ?? 'Female';
+    _morningNotificationEnabled =
+        _prefs?.getBool('morningNotificationEnabled') ?? true;
+    _morningTime = _prefs?.getString('morningTime') ?? '08:00 AM';
+    _nightNotificationEnabled =
+        _prefs?.getBool('nightNotificationEnabled') ?? true;
+    _nightTime = _prefs?.getString('nightTime') ?? '09:00 PM';
 
     _isInitialized = true;
     notifyListeners();
@@ -87,7 +98,13 @@ class AppState extends ChangeNotifier {
   double _fontSizeScale = 1.0;
   bool _hapticsEnabled = true;
   bool _useTtsSimulation = false;
-  bool _useBlueTopBar = true;
+  bool _useBlueTopBar = false;
+  bool _showFeedModeSelector = true;
+  String _savedViewMode = 'list';
+  bool _morningNotificationEnabled = true;
+  String _morningTime = '08:00 AM';
+  bool _nightNotificationEnabled = true;
+  String _nightTime = '09:00 PM';
 
   final Set<String> _bookmarkedIds = {'art-1', 'art-3'};
   final List<String> _recentSearches = <String>[
@@ -121,6 +138,12 @@ class AppState extends ChangeNotifier {
   bool get hapticsEnabled => _hapticsEnabled;
   bool get useTtsSimulation => _useTtsSimulation;
   bool get useBlueTopBar => _useBlueTopBar;
+  bool get showFeedModeSelector => _showFeedModeSelector;
+  String get savedViewMode => _savedViewMode;
+  bool get morningNotificationEnabled => _morningNotificationEnabled;
+  String get morningTime => _morningTime;
+  bool get nightNotificationEnabled => _nightNotificationEnabled;
+  String get nightTime => _nightTime;
 
   UnmodifiableSetView<String> get bookmarkedIds =>
       UnmodifiableSetView<String>(_bookmarkedIds);
@@ -222,6 +245,52 @@ class AppState extends ChangeNotifier {
     }
     _useBlueTopBar = value;
     _prefs?.setBool('useBlueTopBar', value);
+    notifyListeners();
+  }
+
+  void setShowFeedModeSelector(bool value) {
+    if (_showFeedModeSelector == value) {
+      return;
+    }
+    _showFeedModeSelector = value;
+    _prefs?.setBool('showFeedModeSelector', value);
+    notifyListeners();
+  }
+
+  void setSavedViewMode(String value) {
+    if (_savedViewMode == value) {
+      return;
+    }
+    _savedViewMode = value;
+    _prefs?.setString('savedViewMode', value);
+    notifyListeners();
+  }
+
+  void setMorningNotificationEnabled(bool value) {
+    if (_morningNotificationEnabled == value) return;
+    _morningNotificationEnabled = value;
+    _prefs?.setBool('morningNotificationEnabled', value);
+    notifyListeners();
+  }
+
+  void setMorningTime(String value) {
+    if (_morningTime == value) return;
+    _morningTime = value;
+    _prefs?.setString('morningTime', value);
+    notifyListeners();
+  }
+
+  void setNightNotificationEnabled(bool value) {
+    if (_nightNotificationEnabled == value) return;
+    _nightNotificationEnabled = value;
+    _prefs?.setBool('nightNotificationEnabled', value);
+    notifyListeners();
+  }
+
+  void setNightTime(String value) {
+    if (_nightTime == value) return;
+    _nightTime = value;
+    _prefs?.setString('nightTime', value);
     notifyListeners();
   }
 

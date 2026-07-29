@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:factshot/core/theme/liquid_glass_theme.dart';
+import 'package:factshot/core/widgets/skeleton_block/skeleton_block.dart';
 
 class ArticleImage extends StatelessWidget {
   const ArticleImage({super.key, required this.imageUrl, this.height});
@@ -23,7 +24,7 @@ class ArticleImage extends StatelessWidget {
                 if (progress == null) {
                   return child;
                 }
-                return Container(color: Colors.white.withValues(alpha: 0.04));
+                return const SkeletonBlock(radius: LiquidGlassTheme.radius20);
               },
               errorBuilder: (context, error, stackTrace) =>
                   Container(color: Colors.white10),

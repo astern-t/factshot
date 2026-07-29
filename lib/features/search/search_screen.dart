@@ -13,6 +13,7 @@ import 'package:factshot/core/widgets/empty_state_card/empty_state_card.dart';
 import 'package:factshot/core/widgets/pressable_scale/pressable_scale.dart';
 import 'package:factshot/core/widgets/glass_surface/glass_surface.dart';
 import 'package:factshot/core/widgets/skeleton_block/skeleton_block.dart';
+import 'package:factshot/core/widgets/skeleton_block/skeleton_card.dart';
 import 'package:factshot/core/utils/transition_helper.dart';
 import 'package:factshot/features/article_detail/article_detail_screen.dart';
 
@@ -340,7 +341,16 @@ class _SuggestionsView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(
                           LiquidGlassTheme.radius24,
                         ),
-                        child: Image.network(item.imageUrl, fit: BoxFit.cover),
+                        child: Image.network(
+                          item.imageUrl,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+                            return const SkeletonBlock(
+                              radius: LiquidGlassTheme.radius24,
+                            );
+                          },
+                        ),
                       ),
                       // Dark gradient overlay
                       Positioned.fill(
@@ -500,32 +510,7 @@ class _SearchLoading extends StatelessWidget {
       itemCount: 4,
       separatorBuilder: (context, index) =>
           const SizedBox(height: LiquidGlassTheme.space12),
-      itemBuilder: (context, index) => GlassSurface(
-        radius: LiquidGlassTheme.radius24,
-        padding: const EdgeInsets.all(LiquidGlassTheme.space16),
-        child: const Row(
-          children: [
-            SkeletonBlock(
-              height: 84,
-              width: 84,
-              radius: LiquidGlassTheme.radius20,
-            ),
-            SizedBox(width: LiquidGlassTheme.space16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SkeletonBlock(width: 70),
-                  SizedBox(height: LiquidGlassTheme.space12),
-                  SkeletonBlock(width: double.infinity, height: 18),
-                  SizedBox(height: LiquidGlassTheme.space8),
-                  SkeletonBlock(width: 180, height: 14),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      itemBuilder: (context, index) => const SkeletonArticleTileCard(),
     );
   }
 }
