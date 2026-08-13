@@ -18,6 +18,7 @@ class ArticleListTileCard extends StatelessWidget {
     this.secondaryIcon,
     this.language,
     this.onLanguageChanged,
+    this.borderColor,
   });
 
   final NewsArticle article;
@@ -26,6 +27,7 @@ class ArticleListTileCard extends StatelessWidget {
   final IconData? secondaryIcon;
   final String? language;
   final ValueChanged<String>? onLanguageChanged;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +38,7 @@ class ArticleListTileCard extends StatelessWidget {
     return GlassSurface(
       radius: LiquidGlassTheme.radius24,
       padding: const EdgeInsets.all(LiquidGlassTheme.space16),
+      borderColor: borderColor,
       child: PressableScale(
         onTap: onTap,
         borderRadius: BorderRadius.circular(LiquidGlassTheme.radius24),

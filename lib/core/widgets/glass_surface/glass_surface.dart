@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:factshot/core/theme/liquid_glass_theme.dart';
+import 'package:factshot/app/app_state.dart';
 
 enum GlassLevel { subtle, regular, strong }
 
@@ -40,14 +41,24 @@ class GlassSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Frosted colors with correct opacity to let background peek through with high readability
+    AppState? state;
+    try {
+      state = AppScope.of(context);
+    } catch (_) {}
+    final lowPerf = state?.lowPerformanceMode ?? false;
+
+    // Frosted/Solid colors with correct opacity to let background peek through with high readability
     final defaultFillColor = isDark
-        ? const Color(0xC512141A) // Frosted deep charcoal
-        : const Color(0xCCF8FAFC); // Frosted soft slate white
+        ? (lowPerf
+            ? const Color(0xFF16181D) // Solid deep slate/charcoal
+            : const Color(0xC512141A)) // Frosted deep charcoal
+        : (lowPerf
+            ? const Color(0xFFF1F5F9) // Solid soft slate white
+            : const Color(0xCCF8FAFC)); // Frosted soft slate white
 
     final fillColor = customFillColor ??
         (tintColor != null
-            ? tintColor!.withValues(alpha: isDark ? 0.15 : 0.25)
+            ? tintColor!.withValues(alpha: isDark ? (lowPerf ? 0.85 : 0.15) : (lowPerf ? 0.92 : 0.25))
             : defaultFillColor);
 
     final effectiveBorderColor =
@@ -63,6 +74,16 @@ class GlassSurface extends StatelessWidget {
             : Colors.black.withValues(alpha: 0.05));
 
     final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(radius);
+
+    final mainContainer = Container(
+      decoration: BoxDecoration(
+        color: fillColor,
+        borderRadius: effectiveBorderRadius,
+        border: Border.all(color: effectiveBorderColor, width: 1.0),
+      ),
+      padding: padding ?? EdgeInsets.zero,
+      child: child,
+    );
 
     return Container(
       width: width,
@@ -84,18 +105,12 @@ class GlassSurface extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: effectiveBorderRadius,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: fillColor,
-              borderRadius: effectiveBorderRadius,
-              border: Border.all(color: effectiveBorderColor, width: 1.0),
-            ),
-            padding: padding ?? EdgeInsets.zero,
-            child: child,
-          ),
-        ),
+        child: lowPerf
+            ? mainContainer
+            : BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
+                child: mainContainer,
+              ),
       ),
     );
   }

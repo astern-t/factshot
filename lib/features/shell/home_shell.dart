@@ -64,11 +64,13 @@ class _MainNavigationState extends State<MainNavigation> {
     ); // Apple-like vibrant blue from the reference image
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final state = AppScope.of(context);
+
     return Scaffold(
-      extendBody: true,
-      body: Stack(
+      backgroundColor: Colors.black, // Match reference image background
+      body: Column(
         children: [
-          Positioned.fill(
+          Expanded(
             child: AnimatedSwitcher(
               duration: LiquidGlassTheme.regular,
               switchInCurve: LiquidGlassTheme.emphasizedDecelerate,
@@ -91,140 +93,54 @@ class _MainNavigationState extends State<MainNavigation> {
               ),
             ),
           ),
-
-          // Protective bottom gradient scrim
-          Builder(
-            builder: (context) {
-              final mediaQuery = MediaQuery.of(context);
-              final isMobile = mediaQuery.size.width < 600;
-              final bottomSafeArea = mediaQuery.padding.bottom;
-              final double scrimHeight = isMobile
-                  ? (50 + bottomSafeArea + 12)
-                  : 96;
-
-              return Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                height: scrimHeight,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          LiquidGlassTheme.background.withValues(alpha: 0.35),
-                          LiquidGlassTheme.background.withValues(alpha: 0.85),
-                          LiquidGlassTheme.background,
-                        ],
-                        stops: const [0.0, 0.4, 0.8, 1.0],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-
-          // Ultra-Premium Floating Nav Bar (touches the bottom on mobile)
+          // Thin solid black navigation bar at the bottom (Always visible, outside of screen content)
           Builder(
             builder: (context) {
               final bottomSafeArea = MediaQuery.paddingOf(context).bottom;
+              final double navBarHeight = 40 + bottomSafeArea;
 
-              final double navBarWidth = double.infinity;
-              final double navBarHeight = 50 + bottomSafeArea;
-              final double navBarRadius = 0;
-              final EdgeInsets navBarPadding = EdgeInsets.fromLTRB(
-                16,
-                4,
-                16,
-                4 + bottomSafeArea,
-              );
-              final double indicatorSize = 40;
-              final BorderRadiusGeometry navBarBorderRadius = BorderRadius.zero;
-
-              return Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: EdgeInsets.zero,
-                  child: GlassSurface(
-                    width: navBarWidth,
-                    height: navBarHeight,
-                    radius: navBarRadius,
-                    borderRadius: navBarBorderRadius,
-                    level: GlassLevel.subtle, // No shadow/elevation
-                    customFillColor: isDark
-                        ? const Color(0xFF1C1C1E)
-                        : const Color(0xFFFFFFFF),
-                    borderColor: isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : Colors.black.withValues(alpha: 0.06),
-                    shadowColor: Colors.transparent, // Zero elevation
-                    padding: navBarPadding,
-                    child: Stack(
-                      children: [
-                        // The Blue Circular Indicator perfectly contained inside
-                        AnimatedAlign(
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves
-                              .easeInOutBack, // smoother, slightly curved slide
-                          alignment: Alignment(-1 + (_currentTab * 1.0), 0),
-                          child: FractionallySizedBox(
-                            widthFactor: 1 / 3, // Since there are 3 tabs
-                            child: Center(
-                              child: Container(
-                                width: indicatorSize,
-                                height: indicatorSize,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: activeAccent,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // Icons Row
-                        Row(
-                          children: [
-                            _NavItem(
-                              icon: CupertinoIcons
-                                  .house, // Using standard outline icons like the image
-                              active: _currentTab == 0,
-                              onTap: () {
-                                if (_currentTab != 0) {
-                                  HapticFeedback.lightImpact();
-                                }
-                                setState(() => _currentTab = 0);
-                              },
-                            ),
-                            _NavItem(
-                              icon: CupertinoIcons.compass,
-                              active: _currentTab == 1,
-                              onTap: () {
-                                if (_currentTab != 1) {
-                                  HapticFeedback.lightImpact();
-                                }
-                                setState(() => _currentTab = 1);
-                              },
-                            ),
-                            _NavItem(
-                              icon: CupertinoIcons.person,
-                              active: _currentTab == 2,
-                              onTap: () {
-                                if (_currentTab != 2) {
-                                  HapticFeedback.lightImpact();
-                                }
-                                setState(() => _currentTab = 2);
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
+              return Container(
+                width: double.infinity,
+                height: navBarHeight,
+                color: Colors.black,
+                padding: EdgeInsets.only(bottom: bottomSafeArea),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _NavItem(
+                      icon: CupertinoIcons.search,
+                      active: _currentTab == 1, // Search screen
+                      onTap: () {
+                        if (_currentTab != 1) {
+                          HapticFeedback.lightImpact();
+                          setState(() => _currentTab = 1);
+                        }
+                      },
                     ),
-                  ),
+                    _NavItem(
+                      customIcon: Image.asset(
+                        'assets/image.png',
+                        color: Colors.white,
+                      ),
+                      active: _currentTab == 0, // Home feed
+                      onTap: () {
+                        if (_currentTab != 0) {
+                          HapticFeedback.lightImpact();
+                          setState(() => _currentTab = 0);
+                        }
+                      },
+                    ),
+                    _NavItem(
+                      icon: CupertinoIcons.person_solid,
+                      active: _currentTab == 2, // Profile screen
+                      onTap: () {
+                        if (_currentTab != 2) {
+                          HapticFeedback.lightImpact();
+                          setState(() => _currentTab = 2);
+                        }
+                      },
+                    ),
+                  ],
                 ),
               );
             },
@@ -237,12 +153,14 @@ class _MainNavigationState extends State<MainNavigation> {
 
 class _NavItem extends StatefulWidget {
   const _NavItem({
-    required this.icon,
+    this.icon,
+    this.customIcon,
     required this.active,
     required this.onTap,
   });
 
-  final IconData icon;
+  final IconData? icon;
+  final Widget? customIcon;
   final bool active;
   final VoidCallback onTap;
 
@@ -299,19 +217,23 @@ class _NavItemState extends State<_NavItem>
                 transitionBuilder: (child, animation) {
                   return FadeTransition(opacity: animation, child: child);
                 },
-                child: Icon(
-                  widget.icon,
-                  key: ValueKey<bool>(widget.active),
-                  color: widget.active
-                      ? Colors
-                            .white // White icon inside the solid blue circle
-                      : LiquidGlassTheme.foreground.withValues(
-                          alpha: isDark
-                              ? 0.45
-                              : 0.4, // Muted gray/soft for inactive
+                child: widget.customIcon != null
+                    ? Opacity(
+                        opacity: widget.active ? 1.0 : 0.4,
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: widget.customIcon,
                         ),
-                  size: 24, // Minimalist sizing
-                ),
+                      )
+                    : Icon(
+                        widget.icon,
+                        key: ValueKey<bool>(widget.active),
+                        color: widget.active
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.4),
+                        size: 24, // Minimalist sizing
+                      ),
               ),
             ),
           ),

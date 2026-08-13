@@ -15,6 +15,7 @@ class GlassTextField extends StatelessWidget {
     this.textInputAction,
     this.focusNode,
     this.onEditingComplete,
+    this.borderColor,
   });
 
   final TextEditingController controller;
@@ -28,6 +29,7 @@ class GlassTextField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final FocusNode? focusNode;
   final VoidCallback? onEditingComplete;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +40,9 @@ class GlassTextField extends StatelessWidget {
         color: isDark ? const Color(0xFF1C1C1E) : const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark
+          color: borderColor ?? (isDark
               ? Colors.white.withValues(alpha: 0.1)
-              : Colors.black.withValues(alpha: 0.05),
+              : Colors.black.withValues(alpha: 0.05)),
           width: 1,
         ),
       ),
