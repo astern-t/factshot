@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:factshot/app/app_state.dart';
@@ -5,6 +6,20 @@ import 'package:factshot/core/theme/liquid_glass_theme.dart';
 import 'package:factshot/features/onboarding/onboarding_screen.dart';
 import 'package:factshot/features/auth/presentation/screens/login_screen.dart';
 import 'package:factshot/features/shell/home_shell.dart';
+
+/// Custom scroll behavior that enables drag-scrolling for all device types,
+/// including mouse dragging, stylus, trackpad, and touch.
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  const MyCustomScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.trackpad,
+      };
+}
 
 /// [FactShotApp] is the root widget of the application.
 /// It maintains the global configuration state (color accents, blur parameters, and bookmarked articles)
@@ -59,20 +74,10 @@ class _FactShotAppState extends State<FactShotApp> {
           child: MaterialApp(
             title: 'FactShot',
             debugShowCheckedModeBanner: false,
+            scrollBehavior: const MyCustomScrollBehavior(),
             theme: LiquidGlassTheme.theme(_appState.accentColor, false),
             darkTheme: LiquidGlassTheme.theme(_appState.accentColor, true),
             themeMode: _appState.themeMode,
-            builder: (context, child) {
-              final mediaQueryData = MediaQuery.of(context);
-              return MediaQuery(
-                data: mediaQueryData.copyWith(
-                  textScaler: TextScaler.linear(
-                    mediaQueryData.textScaler.scale(1.0) * _appState.fontSizeScale,
-                  ),
-                ),
-                child: child!,
-              );
-            },
             home: homeWidget,
           ),
         );

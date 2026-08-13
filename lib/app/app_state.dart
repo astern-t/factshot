@@ -20,61 +20,55 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> _initPrefs() async {
-    _prefs = await SharedPreferences.getInstance();
-
-    final themeIndex = _prefs?.getInt('themeMode');
-    if (themeIndex != null &&
-        themeIndex >= 0 &&
-        themeIndex < ThemeMode.values.length) {
-      _themeMode = ThemeMode.values[themeIndex];
-    }
-
-    _hasCompletedOnboarding = _prefs?.getBool('onboardingComplete') ?? false;
-    _isLoggedIn = _prefs?.getBool('isLoggedIn') ?? false;
-    _autoplayEnabled = _prefs?.getBool('autoplayEnabled') ?? true;
-    _appLanguage = _prefs?.getString('appLanguage') ?? 'English';
-    _contentLanguage = _prefs?.getString('contentLanguage') ?? 'English';
-    _displayName = _prefs?.getString('displayName') ?? 'Guest';
-    _email = _prefs?.getString('email') ?? '';
-
-    final feedModeIndex = _prefs?.getInt('feedMode');
-    if (feedModeIndex != null &&
-        feedModeIndex >= 0 &&
-        feedModeIndex < FeedMode.values.length) {
-      _feedMode = FeedMode.values[feedModeIndex];
-    }
-
-    _voicePitch = _prefs?.getDouble('voicePitch') ?? 1.0;
-    _voiceGender = _prefs?.getString('voiceGender') ?? 'Female';
-
-    double defaultScale = 1.0;
     try {
-      final views = WidgetsBinding.instance.platformDispatcher.views;
-      if (views.isNotEmpty) {
-        final view = views.first;
-        final size = view.physicalSize / view.devicePixelRatio;
-        if (size.width < 600) {
-          defaultScale = 0.85;
-        }
+      _prefs = await SharedPreferences.getInstance();
+
+      final themeIndex = _prefs?.getInt('themeMode');
+      if (themeIndex != null &&
+          themeIndex >= 0 &&
+          themeIndex < ThemeMode.values.length) {
+        _themeMode = ThemeMode.values[themeIndex];
       }
-    } catch (_) {}
 
-    _fontSizeScale = _prefs?.getDouble('fontSizeScale') ?? defaultScale;
-    _hapticsEnabled = _prefs?.getBool('hapticsEnabled') ?? true;
-    _useTtsSimulation = _prefs?.getBool('useTtsSimulation') ?? false;
-    _useBlueTopBar = _prefs?.getBool('useBlueTopBar') ?? false;
-    _showFeedModeSelector = _prefs?.getBool('showFeedModeSelector') ?? true;
-    _savedViewMode = _prefs?.getString('savedViewMode') ?? 'list';
-    _voiceGender = _prefs?.getString('voiceGender') ?? 'Female';
-    _morningNotificationEnabled =
-        _prefs?.getBool('morningNotificationEnabled') ?? true;
-    _morningTime = _prefs?.getString('morningTime') ?? '08:00 AM';
-    _nightNotificationEnabled =
-        _prefs?.getBool('nightNotificationEnabled') ?? true;
-    _nightTime = _prefs?.getString('nightTime') ?? '09:00 PM';
+      _hasCompletedOnboarding = _prefs?.getBool('onboardingComplete') ?? false;
+      _isLoggedIn = _prefs?.getBool('isLoggedIn') ?? false;
+      _autoplayEnabled = _prefs?.getBool('autoplayEnabled') ?? true;
+      _appLanguage = _prefs?.getString('appLanguage') ?? 'English';
+      _contentLanguage = _prefs?.getString('contentLanguage') ?? 'English';
+      _displayName = _prefs?.getString('displayName') ?? 'Guest';
+      _email = _prefs?.getString('email') ?? '';
 
-    _isInitialized = true;
-    notifyListeners();
+      final feedModeIndex = _prefs?.getInt('feedMode');
+      if (feedModeIndex != null &&
+          feedModeIndex >= 0 &&
+          feedModeIndex < FeedMode.values.length) {
+        _feedMode = FeedMode.values[feedModeIndex];
+      }
+
+      _voicePitch = _prefs?.getDouble('voicePitch') ?? 1.0;
+      _voiceGender = _prefs?.getString('voiceGender') ?? 'Female';
+
+
+      _hapticsEnabled = _prefs?.getBool('hapticsEnabled') ?? true;
+      _useTtsSimulation = _prefs?.getBool('useTtsSimulation') ?? false;
+      _useBlueTopBar = _prefs?.getBool('useBlueTopBar') ?? false;
+      _showFeedModeSelector = _prefs?.getBool('showFeedModeSelector') ?? false;
+      _showNavigationBar = _prefs?.getBool('showNavigationBar') ?? false;
+      _lowPerformanceMode = _prefs?.getBool('lowPerformanceMode') ?? true;
+      _savedViewMode = _prefs?.getString('savedViewMode') ?? 'list';
+      _voiceGender = _prefs?.getString('voiceGender') ?? 'Female';
+      _morningNotificationEnabled =
+          _prefs?.getBool('morningNotificationEnabled') ?? true;
+      _morningTime = _prefs?.getString('morningTime') ?? '08:00 AM';
+      _nightNotificationEnabled =
+          _prefs?.getBool('nightNotificationEnabled') ?? true;
+      _nightTime = _prefs?.getString('nightTime') ?? '09:00 PM';
+    } catch (e, stack) {
+      debugPrint('Error initializing AppState preferences: $e\n$stack');
+    } finally {
+      _isInitialized = true;
+      notifyListeners();
+    }
   }
 
   GlassMode _glassMode = GlassMode.tinted;
@@ -95,11 +89,12 @@ class AppState extends ChangeNotifier {
   // Voice & Accessibility Settings
   double _voicePitch = 1.0;
   String _voiceGender = 'Female';
-  double _fontSizeScale = 1.0;
   bool _hapticsEnabled = true;
   bool _useTtsSimulation = false;
   bool _useBlueTopBar = false;
-  bool _showFeedModeSelector = true;
+  bool _showFeedModeSelector = false;
+  bool _showNavigationBar = false;
+  bool _lowPerformanceMode = true;
   String _savedViewMode = 'list';
   bool _morningNotificationEnabled = true;
   String _morningTime = '08:00 AM';
@@ -134,11 +129,12 @@ class AppState extends ChangeNotifier {
   // Voice & Accessibility Getters
   double get voicePitch => _voicePitch;
   String get voiceGender => _voiceGender;
-  double get fontSizeScale => _fontSizeScale;
   bool get hapticsEnabled => _hapticsEnabled;
   bool get useTtsSimulation => _useTtsSimulation;
   bool get useBlueTopBar => _useBlueTopBar;
   bool get showFeedModeSelector => _showFeedModeSelector;
+  bool get showNavigationBar => _showNavigationBar;
+  bool get lowPerformanceMode => _lowPerformanceMode;
   String get savedViewMode => _savedViewMode;
   bool get morningNotificationEnabled => _morningNotificationEnabled;
   String get morningTime => _morningTime;
@@ -257,6 +253,24 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setLowPerformanceMode(bool value) {
+    if (_lowPerformanceMode == value) {
+      return;
+    }
+    _lowPerformanceMode = value;
+    _prefs?.setBool('lowPerformanceMode', value);
+    notifyListeners();
+  }
+
+  void setShowNavigationBar(bool value) {
+    if (_showNavigationBar == value) {
+      return;
+    }
+    _showNavigationBar = value;
+    _prefs?.setBool('showNavigationBar', value);
+    notifyListeners();
+  }
+
   void setSavedViewMode(String value) {
     if (_savedViewMode == value) {
       return;
@@ -335,6 +349,16 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void removeRecentSearch(String query) {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) {
+      return;
+    }
+    if (_recentSearches.remove(trimmed)) {
+      notifyListeners();
+    }
+  }
+
   void setNotificationsEnabled(bool value) {
     if (_notificationsEnabled == value) {
       return;
@@ -398,14 +422,6 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setFontSizeScale(double value) {
-    if (_fontSizeScale == value) {
-      return;
-    }
-    _fontSizeScale = value;
-    _prefs?.setDouble('fontSizeScale', value);
-    notifyListeners();
-  }
 
   void setHapticsEnabled(bool value) {
     if (_hapticsEnabled == value) {

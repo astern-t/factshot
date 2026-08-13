@@ -219,6 +219,8 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                   stretch: true,
                   backgroundColor: LiquidGlassTheme.background,
                   elevation: 0,
+                  shadowColor: Colors.transparent,
+                  surfaceTintColor: Colors.transparent,
                   leading: Center(
                     child: Padding(
                       padding: EdgeInsets.only(left: isMobile ? 8.0 : 12.0),
@@ -230,28 +232,31 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                       ),
                     ),
                   ),
-                  flexibleSpace: FlexibleSpaceBar(
-                    stretchModes: const [
-                      StretchMode.zoomBackground,
-                      StretchMode.blurBackground,
-                    ],
-                    background: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        if (widget.article.hasVideo && _isVideoInitialized && _videoController != null)
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                if (_videoController!.value.isPlaying) {
-                                  _videoController!.pause();
-                                  _isVideoPlaying = false;
-                                } else {
-                                  _videoController!.play();
-                                  _isVideoPlaying = true;
-                                }
-                              });
-                            },
-                            child: FittedBox(
+                  flexibleSpace: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      if (widget.article.hasVideo && _isVideoInitialized && _videoController != null) {
+                        setState(() {
+                          if (_videoController!.value.isPlaying) {
+                            _videoController!.pause();
+                            _isVideoPlaying = false;
+                          } else {
+                            _videoController!.play();
+                            _isVideoPlaying = true;
+                          }
+                        });
+                      }
+                    },
+                    child: FlexibleSpaceBar(
+                      stretchModes: const [
+                        StretchMode.zoomBackground,
+                        StretchMode.blurBackground,
+                      ],
+                      background: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          if (widget.article.hasVideo && _isVideoInitialized && _videoController != null)
+                            FittedBox(
                               fit: BoxFit.cover,
                               clipBehavior: Clip.hardEdge,
                               child: SizedBox(
@@ -259,8 +264,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                                 height: _videoController!.value.size.height,
                                 child: VideoPlayer(_videoController!),
                               ),
-                            ),
-                          )
+                            )
                         else
                           Image.network(
                             widget.article.imageUrl,
@@ -293,17 +297,19 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
 
                         // Center play icon if video is paused
                         if (widget.article.hasVideo && _isVideoInitialized && !_isVideoPlaying)
-                          Center(
-                            child: Container(
-                              padding: const EdgeInsets.all(14),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.65),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                CupertinoIcons.play_fill,
-                                color: Colors.white,
-                                size: 28,
+                          IgnorePointer(
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.65),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  CupertinoIcons.play_fill,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
                               ),
                             ),
                           ),
@@ -401,6 +407,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                     ),
                   ),
                 ),
+              ),
 
                 // Main Text Details
                 SliverPadding(
@@ -600,24 +607,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                         }
                       },
                     ),
-                    SizedBox(width: isMobile ? 6 : LiquidGlassTheme.space8),
-                    // Aa Font Size Button
-                    GlassIconButton(
-                      icon: Icons.text_fields_rounded,
-                      size: isMobile ? 38 : 52,
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        final current = state.fontSizeScale;
-                        final next = current < 0.95
-                            ? 1.0
-                            : (current > 1.1 ? 0.85 : 1.2);
-                        state.setFontSizeScale(next);
-                        final label = next == 0.85
-                            ? 'Small'
-                            : (next == 1.2 ? 'Large' : 'Medium');
-                        GlassMessage.show(context, 'Text Size: $label');
-                      },
-                    ),
+
                     SizedBox(width: isMobile ? 6 : LiquidGlassTheme.space8),
                     // Bookmark Button
                     GlassIconButton(
@@ -634,7 +624,12 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                     SizedBox(width: isMobile ? 6 : LiquidGlassTheme.space8),
                     // Share Button
                     GlassIconButton(
-                      icon: Icons.ios_share_rounded,
+                      customIcon: Image.network(
+                        'https://img.icons8.com/ios-glyphs/30/share--v1.png',
+                        width: 22,
+                        height: 22,
+                        color: LiquidGlassTheme.foreground,
+                      ),
                       size: isMobile ? 38 : 52,
                       onTap: () {
                         HapticFeedback.mediumImpact();

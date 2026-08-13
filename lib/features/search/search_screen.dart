@@ -93,101 +93,75 @@ class _SearchScreenState extends State<SearchScreen> {
     final state = AppScope.of(context);
     return Scaffold(
       body: FactShotBackground(
-        child: Column(
-          children: [
-            // Top Bar Container (Blue or Glass based on state.useBlueTopBar toggle)
-            if (state.useBlueTopBar)
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF1565C0), // Deep vibrant blue
-                      Color(0xFF1E88E5), // Rich bright blue
-                    ],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF1565C0).withValues(alpha: 0.35),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: SafeArea(
-                  bottom: false,
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              16.0,
+              20.0,
+              16.0,
+              LiquidGlassTheme.space20,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GlassSurface(
+                  radius: 24,
+                  level: GlassLevel.subtle,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20.0, 12.0, 20.0, 16.0),
-                    child: Row(
-                      children: const [
-                        Icon(
-                          CupertinoIcons.search,
-                          color: Colors.white,
-                          size: 24,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    child: TextField(
+                      controller: _controller,
+                      onSubmitted: _runSearch,
+                      style: LiquidGlassTheme.body.copyWith(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Search titles, categories, sources...',
+                        hintStyle: LiquidGlassTheme.body.copyWith(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white54
+                              : Colors.black54,
+                          fontSize: 14.5,
                         ),
-                        SizedBox(width: 10),
-                        Text(
-                          'Search',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5,
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Icon(
+                            CupertinoIcons.search,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 20,
                           ),
                         ),
-                      ],
+                        prefixIconConstraints: const BoxConstraints(
+                          minWidth: 24,
+                          minHeight: 24,
+                        ),
+                        suffixIcon: _query.isEmpty && _controller.text.isEmpty
+                            ? null
+                            : IconButton(
+                                onPressed: () {
+                                  _controller.clear();
+                                  setState(() {
+                                    _query = '';
+                                    _isSearching = false;
+                                  });
+                                },
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                icon: Icon(
+                                  CupertinoIcons.clear,
+                                  color: LiquidGlassTheme.foregroundSoft,
+                                  size: 18,
+                                ),
+                              ),
+                      ),
                     ),
                   ),
-                ),
-              )
-            else
-              SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 8.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('Search', style: LiquidGlassTheme.display),
-                  ),
-                ),
-              ),
-
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  LiquidGlassTheme.space20,
-                  LiquidGlassTheme.space16,
-                  LiquidGlassTheme.space20,
-                  LiquidGlassTheme.space20,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                GlassTextField(
-                  controller: _controller,
-                  hintText: 'Titles, categories, sources',
-                  prefixIcon: Icon(
-                    CupertinoIcons.search,
-                    color: LiquidGlassTheme.foregroundSoft,
-                  ),
-                  suffixIcon: _query.isEmpty && _controller.text.isEmpty
-                      ? null
-                      : IconButton(
-                          onPressed: () {
-                            _controller.clear();
-                            setState(() {
-                              _query = '';
-                              _isSearching = false;
-                            });
-                          },
-                          icon: Icon(
-                            CupertinoIcons.clear,
-                            color: LiquidGlassTheme.foregroundSoft,
-                          ),
-                        ),
-                  onSubmitted: _runSearch,
                 ),
                 const SizedBox(height: LiquidGlassTheme.space20),
                 Expanded(
@@ -199,6 +173,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             recentSearches: state.recentSearches,
                             onTopicTap: _runSearch,
                             onClearRecent: state.clearRecentSearches,
+                            onRemoveRecent: state.removeRecentSearch,
                             onCategorySelected: widget.onCategorySelected,
                           )
                         : _isSearching
@@ -221,10 +196,8 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
         ),
-      ],
-    ),
-  ),
-);
+      ),
+    );
   }
 }
 
@@ -241,6 +214,18 @@ class _ExploreItem {
 }
 
 const List<_ExploreItem> _exploreCategories = [
+  _ExploreItem(
+    title: 'Breaking',
+    imageUrl:
+        'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&q=80&w=300',
+    category: 'BREAKING',
+  ),
+  _ExploreItem(
+    title: 'Trending',
+    imageUrl:
+        'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=300',
+    category: 'TRENDING',
+  ),
   _ExploreItem(
     title: 'Technology',
     imageUrl:
@@ -279,6 +264,7 @@ class _SuggestionsView extends StatelessWidget {
     required this.recentSearches,
     required this.onTopicTap,
     required this.onClearRecent,
+    required this.onRemoveRecent,
     this.onCategorySelected,
   });
 
@@ -286,15 +272,58 @@ class _SuggestionsView extends StatelessWidget {
   final List<String> recentSearches;
   final ValueChanged<String> onTopicTap;
   final VoidCallback onClearRecent;
+  final ValueChanged<String> onRemoveRecent;
   final ValueChanged<String>? onCategorySelected;
+
+  void _showDeleteConfirmDialog(BuildContext context, String term) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text('Delete Search History'),
+        content: Text('Do you want to delete "$term" from your history?'),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            child: const Text('Delete'),
+            onPressed: () {
+              onRemoveRecent(term);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final accent = Theme.of(context).colorScheme.primary;
     return ListView(
       padding: const EdgeInsets.only(bottom: 110),
       physics: const BouncingScrollPhysics(),
       children: [
-        Text('TRENDING', style: LiquidGlassTheme.overline),
+        Row(
+          children: [
+            Icon(
+              CupertinoIcons.flame_fill,
+              color: accent,
+              size: 14,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              'TRENDING TOPICS',
+              style: LiquidGlassTheme.overline.copyWith(
+                color: accent,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.8,
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: LiquidGlassTheme.space12),
         Wrap(
           spacing: LiquidGlassTheme.space8,
@@ -310,10 +339,27 @@ class _SuggestionsView extends StatelessWidget {
               .toList(),
         ),
         const SizedBox(height: LiquidGlassTheme.space24),
-        Text('EXPLORE CATEGORIES', style: LiquidGlassTheme.overline),
+        Row(
+          children: [
+            Icon(
+              CupertinoIcons.compass_fill,
+              color: accent,
+              size: 14,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              'EXPLORE CATEGORIES',
+              style: LiquidGlassTheme.overline.copyWith(
+                color: accent,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.8,
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: LiquidGlassTheme.space12),
         SizedBox(
-          height: 120,
+          height: 136,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
@@ -323,7 +369,8 @@ class _SuggestionsView extends StatelessWidget {
               final item = _exploreCategories[index];
               return GlassSurface(
                 width: 180,
-                radius: LiquidGlassTheme.radius24,
+                radius: LiquidGlassTheme.radius20,
+                borderColor: Colors.transparent,
                 child: PressableScale(
                   onTap: () {
                     if (onCategorySelected != null) {
@@ -331,7 +378,7 @@ class _SuggestionsView extends StatelessWidget {
                     }
                   },
                   borderRadius: BorderRadius.circular(
-                    LiquidGlassTheme.radius24,
+                    LiquidGlassTheme.radius20,
                   ),
                   child: Stack(
                     fit: StackFit.expand,
@@ -339,7 +386,7 @@ class _SuggestionsView extends StatelessWidget {
                       // Image background
                       ClipRRect(
                         borderRadius: BorderRadius.circular(
-                          LiquidGlassTheme.radius24,
+                          LiquidGlassTheme.radius20,
                         ),
                         child: Image.network(
                           item.imageUrl,
@@ -347,7 +394,7 @@ class _SuggestionsView extends StatelessWidget {
                           loadingBuilder: (context, child, progress) {
                             if (progress == null) return child;
                             return const SkeletonBlock(
-                              radius: LiquidGlassTheme.radius24,
+                              radius: LiquidGlassTheme.radius20,
                             );
                           },
                         ),
@@ -357,7 +404,7 @@ class _SuggestionsView extends StatelessWidget {
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(
-                              LiquidGlassTheme.radius24,
+                              LiquidGlassTheme.radius20,
                             ),
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
@@ -379,7 +426,9 @@ class _SuggestionsView extends StatelessWidget {
                             Text(
                               item.category,
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
+                                color: item.category == 'BREAKING'
+                                    ? const Color(0xFFFF3B30)
+                                    : accent,
                                 fontSize: 9.0,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.5,
@@ -390,7 +439,7 @@ class _SuggestionsView extends StatelessWidget {
                               item.title,
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 16.0,
+                                fontSize: 15.0,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: -0.2,
                               ),
@@ -409,9 +458,39 @@ class _SuggestionsView extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('RECENT', style: LiquidGlassTheme.overline),
+            Row(
+              children: [
+                Icon(
+                  CupertinoIcons.time,
+                  color: LiquidGlassTheme.foregroundSoft,
+                  size: 14,
+                ),
+                const SizedBox(width: 6),
+                Text('RECENT SEARCHES', style: LiquidGlassTheme.overline),
+              ],
+            ),
             if (recentSearches.isNotEmpty)
-              GlassButton(label: 'Clear', onTap: onClearRecent),
+              GestureDetector(
+                onTap: onClearRecent,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
+                  ),
+                  child: Text(
+                    'Clear All',
+                    style: TextStyle(
+                      color: accent,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
         const SizedBox(height: LiquidGlassTheme.space12),
@@ -423,35 +502,58 @@ class _SuggestionsView extends StatelessWidget {
                 'Your recent queries will appear here for one-tap recall.',
           )
         else
-          ...recentSearches.map(
-            (term) => Padding(
-              padding: const EdgeInsets.only(bottom: LiquidGlassTheme.space12),
-              child: GlassSurface(
-                radius: LiquidGlassTheme.radius24,
-                padding: const EdgeInsets.all(LiquidGlassTheme.space16),
-                child: PressableScale(
-                  onTap: () => onTopicTap(term),
-                  borderRadius: BorderRadius.circular(
-                    LiquidGlassTheme.radius24,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        CupertinoIcons.time,
-                        color: LiquidGlassTheme.foregroundSoft,
+          GlassSurface(
+            radius: LiquidGlassTheme.radius24,
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            borderColor: Colors.white.withValues(alpha: 0.04),
+            child: Column(
+              children: recentSearches.asMap().entries.map((entry) {
+                final idx = entry.key;
+                final term = entry.value;
+                return Column(
+                  children: [
+                    if (idx > 0)
+                      Divider(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        height: 1,
                       ),
-                      const SizedBox(width: LiquidGlassTheme.space12),
-                      Expanded(
-                        child: Text(term, style: LiquidGlassTheme.bodyStrong),
+                    GestureDetector(
+                      onLongPress: () => _showDeleteConfirmDialog(context, term),
+                      child: PressableScale(
+                        onTap: () => onTopicTap(term),
+                        borderRadius: BorderRadius.circular(LiquidGlassTheme.radius24),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          child: Row(
+                            children: [
+                              Icon(
+                                CupertinoIcons.time,
+                                color: LiquidGlassTheme.foregroundSoft,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  term,
+                                  style: LiquidGlassTheme.bodyStrong.copyWith(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                CupertinoIcons.arrow_up_right,
+                                color: LiquidGlassTheme.foregroundSoft,
+                                size: 14,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      Icon(
-                        CupertinoIcons.arrow_up_right,
-                        color: LiquidGlassTheme.foregroundSoft,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
+                  ],
+                );
+              }).toList(),
             ),
           ),
       ],
@@ -492,6 +594,7 @@ class _ResultsView extends StatelessWidget {
       itemBuilder: (context, index) => ArticleListTileCard(
         article: results[index],
         onTap: () => onOpen(results[index]),
+        borderColor: Colors.transparent,
       ),
       separatorBuilder: (context, index) =>
           const SizedBox(height: LiquidGlassTheme.space12),

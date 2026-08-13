@@ -6,7 +6,8 @@ import 'package:factshot/core/widgets/pressable_scale/pressable_scale.dart';
 class GlassIconButton extends StatelessWidget {
   const GlassIconButton({
     super.key,
-    required this.icon,
+    this.icon,
+    this.customIcon,
     this.onTap,
     this.active = false,
     this.size = 52,
@@ -15,7 +16,8 @@ class GlassIconButton extends StatelessWidget {
     this.customFillColor,
   });
 
-  final IconData icon;
+  final IconData? icon;
+  final Widget? customIcon;
   final VoidCallback? onTap;
   final bool active;
   final double size;
@@ -39,9 +41,9 @@ class GlassIconButton extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(size / 2),
         child: Center(
-          child: Icon(
-            icon,
-            color: iconColor ?? (active ? accent : LiquidGlassTheme.foreground),
+          child: customIcon ?? Icon(
+            icon!,
+            color: iconColor ?? (active ? Colors.white : LiquidGlassTheme.foreground),
             size: 22,
           ),
         ),
