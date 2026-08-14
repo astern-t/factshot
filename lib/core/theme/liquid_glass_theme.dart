@@ -54,42 +54,42 @@ class LiquidGlassTheme {
   static const Curve emphasizedDecelerate = Curves.easeOutQuart;
   static const Curve emphasizedAccelerate = Curves.easeInCubic;
 
-  static TextStyle get display => GoogleFonts.roboto(
+  static TextStyle get display => TextStyle(
     fontSize: 30,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     height: 1.1,
     color: foreground,
   );
 
-  static TextStyle get headline => GoogleFonts.roboto(
+  static TextStyle get headline => TextStyle(
     fontSize: 22,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     height: 1.15,
     color: foreground,
   );
 
-  static TextStyle get title => GoogleFonts.roboto(
+  static TextStyle get title => TextStyle(
     fontSize: 16,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     height: 1.2,
     color: foreground,
   );
 
-  static TextStyle get body => GoogleFonts.roboto(
+  static TextStyle get body => TextStyle(
     fontSize: 13,
     fontWeight: FontWeight.w400,
     height: 1.45,
     color: foregroundMuted,
   );
 
-  static TextStyle get bodyStrong => GoogleFonts.roboto(
+  static TextStyle get bodyStrong => TextStyle(
     fontSize: 13,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     height: 1.35,
     color: foreground,
   );
 
-  static TextStyle get caption => GoogleFonts.roboto(
+  static TextStyle get caption => TextStyle(
     fontSize: 10,
     fontWeight: FontWeight.w400,
     height: 1.3,
@@ -137,7 +137,6 @@ class LiquidGlassTheme {
 
     return ThemeData(
       useMaterial3: true,
-      fontFamily: GoogleFonts.roboto().fontFamily,
       brightness: isDark ? Brightness.dark : Brightness.light,
       scaffoldBackgroundColor: localBackground,
       colorScheme: colorScheme,
