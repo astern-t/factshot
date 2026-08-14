@@ -749,7 +749,7 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
                                   style: TextStyle(
                                     color: textColor,
                                     fontSize: effectiveHeaderFontSize,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.bold,
                                     height: 1.35,
                                     letterSpacing: -0.2,
                                     fontFamily: GoogleFonts.roboto().fontFamily,
