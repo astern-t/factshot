@@ -54,51 +54,45 @@ class LiquidGlassTheme {
   static const Curve emphasizedDecelerate = Curves.easeOutQuart;
   static const Curve emphasizedAccelerate = Curves.easeInCubic;
 
-  static TextStyle get display => GoogleFonts.spaceGrotesk(
+  static TextStyle get display => GoogleFonts.roboto(
     fontSize: 30,
-    fontWeight: FontWeight.w700,
-    height: 1.0,
-    letterSpacing: -1.4,
+    fontWeight: FontWeight.w600,
+    height: 1.1,
     color: foreground,
   );
 
-  static TextStyle get headline => GoogleFonts.spaceGrotesk(
+  static TextStyle get headline => GoogleFonts.roboto(
     fontSize: 22,
-    fontWeight: FontWeight.w700,
-    height: 1.08,
-    letterSpacing: -0.8,
-    color: foreground,
-  );
-
-  static TextStyle get title => GoogleFonts.spaceGrotesk(
-    fontSize: 16,
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w600,
     height: 1.15,
-    letterSpacing: -0.3,
     color: foreground,
   );
 
-  static TextStyle get body => GoogleFonts.inter(
+  static TextStyle get title => GoogleFonts.roboto(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    height: 1.2,
+    color: foreground,
+  );
+
+  static TextStyle get body => GoogleFonts.roboto(
     fontSize: 13,
     fontWeight: FontWeight.w400,
     height: 1.45,
-    letterSpacing: -0.15,
     color: foregroundMuted,
   );
 
-  static TextStyle get bodyStrong => GoogleFonts.inter(
+  static TextStyle get bodyStrong => GoogleFonts.roboto(
     fontSize: 13,
-    fontWeight: FontWeight.w500,
+    fontWeight: FontWeight.w600,
     height: 1.35,
-    letterSpacing: -0.2,
     color: foreground,
   );
 
-  static TextStyle get caption => GoogleFonts.inter(
+  static TextStyle get caption => GoogleFonts.roboto(
     fontSize: 10,
-    fontWeight: FontWeight.w500,
+    fontWeight: FontWeight.w400,
     height: 1.3,
-    letterSpacing: 0.12,
     color: foregroundSoft,
   );
 
@@ -143,6 +137,7 @@ class LiquidGlassTheme {
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: GoogleFonts.roboto().fontFamily,
       brightness: isDark ? Brightness.dark : Brightness.light,
       scaffoldBackgroundColor: localBackground,
       colorScheme: colorScheme,

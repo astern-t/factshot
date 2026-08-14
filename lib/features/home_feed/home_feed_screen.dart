@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:factshot/app/app_state.dart';
 import 'package:factshot/data/models/article/article_model.dart';
 import 'package:factshot/core/services/news_api_service.dart';
@@ -748,9 +749,10 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
                                   style: TextStyle(
                                     color: textColor,
                                     fontSize: effectiveHeaderFontSize,
-                                    fontWeight: FontWeight.bold,
-                                    height: 1.3,
-                                    letterSpacing: 0.2,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.35,
+                                    letterSpacing: -0.2,
+                                    fontFamily: GoogleFonts.roboto().fontFamily,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -761,9 +763,10 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
                                   style: TextStyle(
                                     color: subTextColor,
                                     fontSize: effectiveContentFontSize,
-                                    fontWeight: FontWeight.normal,
-                                    height: 1.4,
-                                    letterSpacing: 0.1,
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.45,
+                                    letterSpacing: -0.1,
+                                    fontFamily: GoogleFonts.roboto().fontFamily,
                                   ),
                                 ),
                                 const SizedBox(height: 6),
