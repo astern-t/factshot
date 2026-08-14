@@ -748,7 +748,7 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
                                   style: TextStyle(
                                     color: textColor,
                                     fontSize: effectiveHeaderFontSize,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.bold,
                                     height: 1.3,
                                     letterSpacing: 0.2,
                                   ),
@@ -986,7 +986,7 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14.0,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.bold,
                                 height: 1.25,
                               ),
                             ),

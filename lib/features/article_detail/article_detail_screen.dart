@@ -436,7 +436,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                         widget.article.getLocalizedTitle(effLang),
                         style: LiquidGlassTheme.display.copyWith(
                           fontSize: isTablet ? 30 : 24,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w800,
                           height: 1.25,
                           letterSpacing: -0.8,
                         ),

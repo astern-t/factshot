@@ -56,7 +56,7 @@ class LiquidGlassTheme {
 
   static TextStyle get display => GoogleFonts.spaceGrotesk(
     fontSize: 30,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     height: 1.0,
     letterSpacing: -1.4,
     color: foreground,
@@ -64,7 +64,7 @@ class LiquidGlassTheme {
 
   static TextStyle get headline => GoogleFonts.spaceGrotesk(
     fontSize: 22,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     height: 1.08,
     letterSpacing: -0.8,
     color: foreground,
@@ -72,7 +72,7 @@ class LiquidGlassTheme {
 
   static TextStyle get title => GoogleFonts.spaceGrotesk(
     fontSize: 16,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     height: 1.15,
     letterSpacing: -0.3,
     color: foreground,
