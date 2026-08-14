@@ -448,8 +448,8 @@ class _CategoryVerticalFeedState extends State<CategoryVerticalFeed>
     final isMobile = mediaQuery.size.width < 600;
 
     // Auto-scale font sizes dynamically and smoothly based on screen width
-    // Base standard mobile width is 375 logical pixels. On mobile, we scale down by 20% to fit card boundaries.
-    final double mobileFactor = isMobile ? 0.8 : 1.0;
+    // Base standard mobile width is 375 logical pixels. On mobile, we scale down by 10% to fit card boundaries.
+    final double mobileFactor = isMobile ? 0.9 : 1.0;
     final double scaleFactor =
         mobileFactor * (mediaQuery.size.width / 375.0).clamp(0.8, 1.15);
     final double effectiveHeaderFontSize = widget.headerFontSize * scaleFactor;
